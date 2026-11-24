@@ -2,6 +2,7 @@
 
 return [
     'default' => env('MAIL_MAILER', 'log'),
+
     'mailers' => [
         'smtp' => [
             'transport' => 'smtp',
@@ -14,9 +15,6 @@ return [
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
-        'ses' => ['transport' => 'ses'],
-        'postmark' => ['transport' => 'postmark'],
-        'resend' => ['transport' => 'resend'],
         'sendmail' => [
             'transport' => 'sendmail',
             'path' => env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail -bs -i'),
@@ -25,7 +23,9 @@ return [
             'transport' => 'log',
             'channel' => env('MAIL_LOG_CHANNEL'),
         ],
-        'array' => ['transport' => 'array'],
+        'array' => [
+            'transport' => 'array',
+        ],
         'failover' => [
             'transport' => 'failover',
             'mailers' => ['smtp', 'log'],

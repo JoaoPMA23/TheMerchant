@@ -17,8 +17,8 @@ class StorefrontTest extends TestCase
     public function test_empty_storefront_has_actionable_empty_states(): void
     {
         $this->get('/')->assertOk()
-            ->assertSee('Seu próximo nível')
-            ->assertSee('O próximo drop pode ser seu.')
+            ->assertSee('Skins e coaching')
+            ->assertSee('Ainda não tem nenhum anúncio por aqui')
             ->assertDontSee('Teste de Conexão');
     }
 
@@ -43,6 +43,22 @@ class StorefrontTest extends TestCase
             ->assertSee('value="service" selected', false);
         $this->get('/anuncios?tipo=cosmetic&busca=Skin')->assertOk()
             ->assertSee('Skin publicada')->assertDontSee('Aula de coaching');
+    }
+
+    public function test_game_cover_has_a_local_fallback_and_decorative_alt(): void
+    {
+        Game::create(['name' => 'Counter-Strike 2', 'slug' => 'cs2', 'active' => true, 'cover_image' => 'games/cs2.jpg']);
+
+        $this->get('/')->assertOk()
+            ->assertSee('data-fallback="'.asset('images/marketplace/cs2.jpg').'"', false)
+            ->assertSee('alt="" loading="lazy"', false);
+    }
+
+    public function test_unknown_page_uses_the_marketplace_404(): void
+    {
+        $this->get('/pagina-que-nao-existe')->assertNotFound()
+            ->assertSee('Esta página não foi encontrada.')
+            ->assertSee('Explorar o catálogo');
     }
 
     private function createListing(string $title, string $type, string $status): Listing

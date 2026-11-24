@@ -14,7 +14,7 @@ Projeto acadêmico de Laboratório de Engenharia de Software III · FATEC Praia 
 
 <p>
   <img src="https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=for-the-badge&amp;logo=php&amp;logoColor=white" alt="PHP 8.2 ou superior">
-  <img src="https://img.shields.io/badge/Laravel-11-FF2D20?style=for-the-badge&amp;logo=laravel&amp;logoColor=white" alt="Laravel 11">
+  <img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&amp;logo=laravel&amp;logoColor=white" alt="Laravel 12">
   <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&amp;logo=javascript&amp;logoColor=black" alt="JavaScript">
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&amp;logo=html5&amp;logoColor=white" alt="HTML5">
   <img src="https://img.shields.io/badge/CSS-663399?style=for-the-badge&amp;logo=css&amp;logoColor=white" alt="CSS">
@@ -43,7 +43,7 @@ Projeto acadêmico de Laboratório de Engenharia de Software III · FATEC Praia 
 
 ---
 
-> **Projeto em construção:** pagamento atualmente simulado e chat planejado. As seções abaixo apresentam o escopo e a arquitetura; o [guia de testes](docs/TESTES.md) registra o que foi efetivamente validado.
+> **Projeto em construção:** pagamento atualmente simulado. As seções abaixo apresentam o escopo e a arquitetura; o [guia de testes](docs/TESTES.md) registra o que foi efetivamente validado.
 
 | 🚀 Executar localmente | 🧪 Validar a aplicação | 📌 Acompanhar entregas |
 | :---: | :---: | :---: |
@@ -146,7 +146,7 @@ Uma pessoa usa a mesma conta para comprar e vender. `seller_profiles.status` con
 
 ### Chat em tempo real — ampliação de escopo
 
-Incluído na v1 em 18/09/2026. A implementação está planejada nas issues #30–#32; atualização do PDF na #33.
+Incluído na v1 em 18/09/2026. Backend e tempo real entregues na #30 ([guia do chat](docs/CHAT_TEMPO_REAL.md)); interface e regressão nas #31–#32; atualização do PDF na #33.
 
 | ID | Prioridade | Descrição |
 | :--- | :---: | :--- |
@@ -178,7 +178,7 @@ Incluído na v1 em 18/09/2026. A implementação está planejada nas issues #30�
 | ✅ Catálogo, carrinho, checkout e webhook assíncrono | ❌ Integração direta com APIs oficiais de jogos (Steam, Riot) |
 | ✅ Reputação pós-compra e chat privado de texto com vendedor | ❌ Anexos, áudio/vídeo e grupos no chat |
 | ✅ Painel administrativo de moderação e denúncias | ❌ Múltiplos idiomas e múltiplas moedas (foco BRL) |
-| ✅ Gateway externo (Mercado Pago / Stripe / PagSeguro) | ❌ Carteira financeira própria ou custódia interna de valores |
+| ✅ Gateway externo (AbacatePay — PIX) | ❌ Carteira financeira própria ou custódia interna de valores |
 | ✅ Coaching com sessões, capacidade e combinação de horários | ❌ Agenda automática de coaching |
 
 ---
@@ -187,20 +187,20 @@ Incluído na v1 em 18/09/2026. A implementação está planejada nas issues #30�
 
 ## 🛠️ Stack Tecnológica
 
-**Linguagens:** PHP no backend; JavaScript nas interações; HTML e CSS na apresentação. O ambiente inspecionado utiliza Laravel 11.56.1. Composer admite 11/12; MySQL é o caminho local documentado.
+**Linguagens:** PHP no backend; JavaScript nas interações; HTML e CSS na apresentação. O projeto utiliza Laravel 12, com dependências resolvidas para PHP 8.2. PostgreSQL/Supabase é o banco principal; os testes usam SQLite em memória.
 
 | Camada / Função | Tecnologia | Descrição |
 | :--- | :--- | :--- |
-| **Linguagem & Back-end** | **PHP 8.2+ / Laravel 11/12** | Monólito modular baseado no padrão MVC do Laravel. |
+| **Linguagem & Back-end** | **PHP 8.2+ / Laravel 12** | Monólito modular baseado no padrão MVC do Laravel. |
 | **Camada de Apresentação** | **Blade + Tailwind CSS + Alpine.js** | Renderização server-side rápida, estilização moderna e componentes interativos leves. |
 | **Banco de Dados** | **MySQL / PostgreSQL previsto** | Migrations e Eloquent; os diagnósticos atuais usam SQL específico de MySQL. |
 | **Autenticação & Autorização** | **Laravel Sessions & Policies** | Sessões seguras com cookies HTTP-only, CSRF e Laravel Policies/Gates. |
-| **Integração de Pagamentos** | **Mercado Pago / Stripe / PagSeguro** | Camada de serviço desacoplada (`PaymentGatewayService`) com suporte a webhooks assíncronos e idempotência. |
+| **Integração de Pagamentos** | **AbacatePay (PIX, API v2)** | Camada de serviço desacoplada (`PaymentGatewayService` + `PaymentGateway`) com webhooks autenticados, reservas com expiração e idempotência. Detalhes em [docs/PAGAMENTOS.md](docs/PAGAMENTOS.md). |
 | **Armazenamento de Arquivos** | **Laravel Storage (Disk Local / S3)** | Armazenamento de imagens de anúncios e perfis com links simbólicos públicos. |
 | **Filas & Tarefas Assíncronas** | **Laravel Queues / Jobs** | Processamento em segundo plano para envio de e-mails, confirmação de webhooks e logs de auditoria. |
 | **Testes Automatizados** | **Pest / PHPUnit** | Cobertura de testes unitários para Services e testes de feature para fluxos HTTP críticos. |
 | **Versionamento** | **Git + GitHub** | Branches, revisão de código e acompanhamento de entregas. |
-| **Chat planejado** | **Laravel Reverb + Echo** | Mensagens em canais privados, histórico e reconexão; ainda não implementado. |
+| **Chat em tempo real** | **Laravel Reverb + Echo** | Canais privados por conversa levando só o aviso de nova mensagem; texto, histórico paginado e reconexão pelo HTTP autorizado. Veja [docs/CHAT_TEMPO_REAL.md](docs/CHAT_TEMPO_REAL.md). |
 | **Evoluções de ambiente** | **Vite / Docker (Sail)** | Dependências declaradas; configurações de build/Compose ainda não versionadas. |
 
 ---
@@ -241,7 +241,7 @@ flowchart TD
     end
 
     subgraph ExternalInfra["Infraestrutura & Integrações Externas"]
-        Gateway["Gateway de Pagamento (Mercado Pago / Stripe)"]
+        Gateway["Gateway de Pagamento (AbacatePay PIX)"]
         Storage["Storage de Imagens"]
         MailService["Servidor de E-mail / Notificações"]
     end
@@ -632,6 +632,7 @@ Consulte o GitHub para o estado atualizado; uma issue fechada não substitui evi
 - 🚀 [Guia de Execução](docs/EXECUCAO.md) — Instalação, `.env`, banco, filas e problemas frequentes.
 - 🧪 [Guia de Testes](docs/TESTES.md) — Comandos isolados, matriz de validação e evidências.
 - ✉️ [Verificação e Recuperação de Acesso](docs/AUTENTICACAO.md) — Laravel, SMTP, filas e configuração de RF03.
+- 💬 [Chat em Tempo Real](docs/CHAT_TEMPO_REAL.md) — Reverb, worker, TLS, origens permitidas, revogação de acesso e roteiro com duas sessões.
 
 - 📋 [Requisitos Detalhados (`requirements.md`)](./requirements.md) — Matriz completa de Requisitos Funcionais, Não Funcionais e Regras de Negócio.
 - 📐 [Especificações Técnicas & ERD (`specs.md`)](./specs.md) — Dicionário de dados, máquina de estados e contratos dos Services.

@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'TheMerchant') }} - @yield('title', 'Marketplace de Cosméticos e Serviços')</title>
+    <link rel="icon" href="{{ asset('favicon-32x32.png') }}" sizes="32x32" type="image/png">
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
 
     <link rel="stylesheet" href="{{ asset('css/theme.css') }}">
 
@@ -13,6 +16,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Plugin Focus (x-trap) mantém o foco dentro dos modais; precisa carregar antes do Alpine. -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <script>
@@ -52,21 +57,26 @@
     @endif
 
     <!-- Flash Messages -->
-    @if (session('success') || session('error') || session('info'))
+    @if (session('success') || session('error') || session('warning') || session('info'))
     <div class="tm-container w-full mt-4" role="status">
         @if (session('success'))
             <div class="p-4 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-sm flex items-center gap-2">
-                <span>✅</span> {{ session('success') }}
+                <x-icon name="check" class="!h-5 !w-5 shrink-0" /> {{ session('success') }}
             </div>
         @endif
         @if (session('error'))
             <div class="p-4 rounded-xl bg-rose-950/80 border border-rose-500/40 text-rose-300 text-sm flex items-center gap-2">
-                <span>⚠️</span> {{ session('error') }}
+                <x-icon name="alert" class="!h-5 !w-5 shrink-0" /> {{ session('error') }}
+            </div>
+        @endif
+        @if (session('warning'))
+            <div class="p-4 rounded-xl bg-amber-950/80 border border-amber-500/40 text-amber-300 text-sm flex items-center gap-2">
+                <x-icon name="alert" class="!h-5 !w-5 shrink-0" /> {{ session('warning') }}
             </div>
         @endif
         @if (session('info'))
             <div class="p-4 rounded-xl bg-sky-950/80 border border-sky-500/40 text-sky-300 text-sm flex items-center gap-2">
-                <span>ℹ️</span> {{ session('info') }}
+                <x-icon name="info" class="!h-5 !w-5 shrink-0" /> {{ session('info') }}
             </div>
         @endif
     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Listing;
 use App\Models\ModerationAudit;
 use App\Models\Report;
 use App\Models\User;
@@ -54,6 +55,53 @@ class ReportModerationService
             ]);
 
             return $lockedReport->fresh(['reporter', 'listing', 'moderator']);
+        });
+    }
+
+    /**
+     * Desfaz o bloqueio sem republicar: o anúncio volta pausado (ou rascunho, se era rascunho)
+     * e o vendedor o reativa pelo fluxo normal, que revalida jogo e categoria.
+     */
+    public function restoreListing(User $moderator, Report $report, string $notes): Listing
+    {
+        return DB::transaction(function () use ($moderator, $report, $notes): Listing {
+            $lockedReport = Report::query()->lockForUpdate()->findOrFail($report->id);
+            $listing = $lockedReport->listing_id === null
+                ? null
+                : Listing::query()->lockForUpdate()->find($lockedReport->listing_id);
+
+            if ($lockedReport->status !== 'procedente'
+                || $listing === null
+                || $listing->status !== 'bloqueado'
+                || $listing->archived_at !== null) {
+                throw ValidationException::withMessages([
+                    'resolution_notes' => 'Este anúncio não está bloqueado e não pode ser restaurado.',
+                ]);
+            }
+
+            $statusBeforeBlock = ModerationAudit::query()
+                ->where('listing_id', $listing->id)
+                ->where('new_listing_status', 'bloqueado')
+                ->where('previous_listing_status', '!=', 'bloqueado')
+                ->latest('id')
+                ->value('previous_listing_status');
+            $restoredStatus = $statusBeforeBlock === 'rascunho' ? 'rascunho' : 'pausado';
+
+            $listing->update(['status' => $restoredStatus]);
+
+            ModerationAudit::create([
+                'report_id' => $lockedReport->id,
+                'moderator_id' => $moderator->id,
+                'listing_id' => $listing->id,
+                'action' => 'anuncio_restaurado',
+                'previous_report_status' => $lockedReport->status,
+                'new_report_status' => $lockedReport->status,
+                'previous_listing_status' => 'bloqueado',
+                'new_listing_status' => $restoredStatus,
+                'resolution_notes' => $notes,
+            ]);
+
+            return $listing->fresh();
         });
     }
 }

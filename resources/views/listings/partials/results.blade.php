@@ -6,14 +6,14 @@
             <p class="text-xs text-slate-400">
                 @if($listing->seller->sellerProfile->total_reviews > 0)
                     Vendedor: {{ number_format($listing->seller->sellerProfile->reputation_score, 2, ',', '.') }} / 5
-                    ({{ $listing->seller->sellerProfile->total_reviews }} avaliações)
+                    ({{ $listing->seller->sellerProfile->total_reviews }} {{ $listing->seller->sellerProfile->total_reviews === 1 ? 'avaliação' : 'avaliações' }})
                 @else
                     Vendedor sem avaliações
                 @endif
             </p>
         </div>
     @empty
-        <x-empty-state title="Nenhum anúncio encontrado para os filtros selecionados." description="Tente outra busca ou explore o catálogo completo para encontrar seu próximo upgrade." icon="search" :href="route('listings.index')" action="Explorar todos os anúncios" />
+        <x-empty-state title="Nada encontrado com esses filtros" description="Tente mudar a busca ou limpar os filtros para ver todos os anúncios." icon="search" :href="route('listings.index')" action="Explorar todos os anúncios" />
     @endforelse
 </div>
 {{ $listings->links('vendor.pagination.catalog') }}

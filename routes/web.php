@@ -67,6 +67,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
     // Carrinho
     Route::get('/carrinho', [CartController::class, 'index'])->name('cart.index');
     Route::post('/carrinho/adicionar/{listing}', [CartController::class, 'add'])->name('cart.add');
+    Route::patch('/carrinho/itens/{item}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/carrinho/remover/{item}', [CartController::class, 'remove'])->name('cart.remove');
     Route::delete('/carrinho/limpar', [CartController::class, 'clear'])->name('cart.clear');
 
@@ -75,6 +76,9 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
     Route::post('/checkout/processar', [CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/sucesso/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::get('/checkout/cancelado/{order}', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
+    Route::post('/checkout/{order}/pagamento', [CheckoutController::class, 'retryPayment'])->middleware('throttle:6,1')->name('checkout.payment.retry');
+    Route::post('/checkout/{order}/atualizar', [CheckoutController::class, 'refresh'])->middleware('throttle:12,1')->name('checkout.payment.refresh');
+    Route::post('/checkout/{order}/simular-pagamento', [CheckoutController::class, 'simulate'])->middleware('throttle:6,1')->name('checkout.payment.simulate');
 
     // Histórico de Pedidos & Avaliação
     Route::get('/pedidos', [OrderController::class, 'index'])->name('orders.index');
@@ -89,11 +93,11 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 
     // Chat Privado em Tempo Real (RF21, RF22, RF23)
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
-    Route::post('/chat/iniciar', [ChatController::class, 'start'])->name('chat.start');
+    Route::post('/chat/iniciar', [ChatController::class, 'start'])->middleware('throttle:chat-start')->name('chat.start');
     Route::get('/chat/nao-lidas', [ChatController::class, 'unreadCount'])->name('chat.unread-count');
     Route::get('/chat/{conversation}', [ChatController::class, 'show'])->name('chat.show');
     Route::get('/chat/{conversation}/mensagens', [ChatController::class, 'messages'])->name('chat.messages');
-    Route::post('/chat/{conversation}/mensagens', [ChatController::class, 'store'])->name('chat.messages.store');
+    Route::post('/chat/{conversation}/mensagens', [ChatController::class, 'store'])->middleware('throttle:chat-messages')->name('chat.messages.store');
     Route::patch('/chat/{conversation}/lida', [ChatController::class, 'markAsRead'])->name('chat.read');
 });
 
@@ -103,7 +107,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', EnsureAccountIsActive::class])->prefix('vendedor')->name('seller.')->group(function () {
-    Route::resource('anuncios', SellerListingController::class);
+    Route::resource('anuncios', SellerListingController::class)->except('show');
     Route::patch('anuncios/{listing}/status', [SellerListingController::class, 'toggleStatus'])->name('anuncios.status');
     Route::get('vendas', [SellerSaleController::class, 'index'])->name('sales.index');
     Route::patch('vendas/{item}/entregar', [SellerSaleController::class, 'markAsDelivered'])->name('sales.deliver');
@@ -122,4 +126,14 @@ Route::middleware(['auth', EnsureAccountIsActive::class, 'can:viewAny,App\Models
     Route::resource('usuarios', AdminUserController::class)->only(['index', 'update']);
     Route::get('denuncias', [AdminReportController::class, 'index'])->name('reports.index');
     Route::patch('denuncias/{report}/moderar', [AdminReportController::class, 'moderate'])->name('reports.moderate');
+    Route::patch('denuncias/{report}/restaurar-anuncio', [AdminReportController::class, 'restoreListing'])->name('reports.restore');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Endereço inexistente
+|--------------------------------------------------------------------------
+| Sem esta rota, um 404 de URL desconhecida não passa pelo grupo "web",
+| a sessão não é iniciada e o cabeçalho aparece como se o usuário tivesse saído.
+*/
+Route::fallback(fn () => abort(404));

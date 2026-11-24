@@ -24,12 +24,13 @@
         <div class="lg:col-span-2 space-y-6">
             <section class="rounded-xl bg-slate-900 border border-slate-800 p-4 sm:p-6" aria-label="Fotos do anúncio"
                      x-data="{ images: @js($galleryImages), current: 0, transitioning: false, changeImage(index) { this.transitioning = true; setTimeout(() => { this.current = index; this.transitioning = false }, 120) } }">
-                <div class="relative overflow-hidden rounded-xl bg-slate-950 min-h-[300px] sm:min-h-[440px] flex items-center justify-center">
+                <div @class(['relative overflow-hidden rounded-xl bg-slate-950 min-h-[300px] sm:min-h-[440px] flex flex-col items-center justify-center', 'tm-detail-art' => $galleryImages->isEmpty()])>
                     <template x-if="images.length > 0">
                         <img :src="images[current]" :class="transitioning ? 'opacity-40' : 'opacity-100'" alt="{{ $listing->title }}" width="1200" height="800" fetchpriority="high" class="max-h-[70vh] w-full object-contain transition-opacity duration-300">
                     </template>
                     @if($galleryImages->isEmpty())
-                        <x-icon :name="$listing->category->type === 'service' ? 'game' : 'spark'" />
+                        <x-icon :name="$listing->category->type === 'service' ? 'game' : 'gem'" />
+                        <p class="mt-4 text-sm text-slate-300">Este anúncio ainda não tem fotos.</p>
                     @endif
 
                     <div class="absolute top-4 left-4 flex flex-wrap gap-2">
@@ -60,6 +61,14 @@
                     <span class="text-xs text-slate-500" aria-label="{{ number_format($listing->views_count, 0, ',', '.') }} visualizações">{{ number_format($listing->views_count, 0, ',', '.') }} visualizações</span>
                 </div>
                 <div class="prose prose-invert max-w-none text-slate-300 text-sm leading-relaxed whitespace-pre-line">{{ $listing->description }}</div>
+                @if($listing->delivery_conditions)
+                    <h3 class="font-bold text-white mt-6 mb-2">Condições de entrega</h3>
+                    <p class="text-sm text-slate-300 whitespace-pre-line">{{ $listing->delivery_conditions }}</p>
+                @endif
+                @if($listing->category->type === 'service' && $listing->session_duration_minutes)
+                    <p class="mt-4 text-sm text-brand-300">Preço por sessão de {{ $listing->session_duration_minutes }} minutos. {{ $listing->capacity }} sessão(ões) disponíveis.</p>
+                    <p class="mt-2 text-xs text-slate-400">Horário a combinar pelo chat · Fuso: {{ $listing->timezone }}</p>
+                @endif
                 <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6 text-xs">
                     <div class="rounded-lg bg-slate-950 border border-slate-800 p-3"><dt class="text-slate-500">Jogo</dt><dd class="font-semibold text-slate-200 mt-1">{{ $listing->game->name }}</dd></div>
                     <div class="rounded-lg bg-slate-950 border border-slate-800 p-3"><dt class="text-slate-500">Categoria / tipo</dt><dd class="font-semibold text-slate-200 mt-1">{{ $listing->category->name }} · {{ $listing->category->type === 'service' ? 'Serviço' : 'Item digital' }}</dd></div>
@@ -76,7 +85,7 @@
                     <form action="{{ route('cart.add', $listing) }}" method="POST">
                         @csrf
                         <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-brand-600/10 transition flex items-center justify-center gap-2">
-                            <span aria-hidden="true">🛒</span> Adicionar ao carrinho
+                            <x-icon name="cart" class="!h-5 !w-5" /> Adicionar ao carrinho
                         </button>
                     </form>
                 @elseif($isOwnListing)
@@ -116,11 +125,11 @@
                     <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-xl font-bold text-slate-950" aria-hidden="true">{{ substr($listing->seller->name, 0, 1) }}</div>
                     <div>
                         <h4 class="font-bold text-sm text-white">{{ $listing->seller->name }}</h4>
-                        <div class="mt-1" aria-label="{{ $sellerProfile?->total_reviews ? 'Avaliação média de '.number_format($rating, 2, ',', '.').' em 5, baseada em '.$sellerProfile->total_reviews.' avaliações' : 'Vendedor sem avaliações' }}">
+                        <div class="mt-1" aria-label="{{ $sellerProfile?->total_reviews ? 'Avaliação média de '.number_format($rating, 2, ',', '.').' em 5, baseada em '.$sellerProfile->total_reviews.($sellerProfile->total_reviews === 1 ? ' avaliação' : ' avaliações') : 'Vendedor sem avaliações' }}">
                             @if(($sellerProfile?->total_reviews ?? 0) > 0)
                                 <span class="text-amber-400 text-sm" aria-hidden="true">@for($star = 1; $star <= 5; $star++){{ $star <= round($rating) ? '★' : '☆' }}@endfor</span>
                                 <span class="text-amber-300 text-xs font-bold">{{ number_format($rating, 2, ',', '.') }}/5</span>
-                                <span class="text-slate-500 text-xs">({{ $sellerProfile->total_reviews }} avaliações)</span>
+                                <span class="text-slate-500 text-xs">({{ $sellerProfile->total_reviews }} {{ $sellerProfile->total_reviews === 1 ? 'avaliação' : 'avaliações' }})</span>
                             @else
                                 <span class="text-slate-500 text-xs">Sem avaliações</span>
                             @endif
@@ -134,7 +143,7 @@
 
                 @auth
                     @if(! $isOwnListing)
-                        <button type="button" @click="reportOpen = true" class="w-full text-xs text-rose-400 hover:text-rose-300 transition text-center mt-4">🚩 Denunciar este anúncio</button>
+                        <button type="button" @click="reportOpen = true" class="w-full text-xs text-rose-400 hover:text-rose-300 transition text-center mt-4"><x-icon name="flag" class="inline !h-4 !w-4 align-[-3px]" /> Denunciar este anúncio</button>
                     @endif
                 @endauth
             </section>
@@ -144,25 +153,25 @@
     @auth
         @if(! $isOwnListing)
             <div x-cloak x-show="reportOpen" x-transition.opacity class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" role="presentation" @click.self="reportOpen = false">
-                <section x-show="reportOpen" x-transition class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6" role="dialog" aria-modal="true" aria-labelledby="report-modal-title" @keydown.escape.stop="reportOpen = false">
+                <section x-show="reportOpen" x-transition x-trap.inert.noscroll="reportOpen" class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6" role="dialog" aria-modal="true" aria-labelledby="report-modal-title" @keydown.escape.stop="reportOpen = false">
                     <h3 id="report-modal-title" class="text-base font-bold text-white mb-2">Denunciar anúncio</h3>
                     <p class="text-xs text-slate-400 mb-4">Informe o motivo e descreva a situação para a equipe de moderação.</p>
                     <form action="{{ route('listings.report', $listing) }}" method="POST" class="space-y-4">
                         @csrf
                         <div>
                             <label for="report-reason" class="block text-xs font-semibold text-slate-300 mb-1">Motivo</label>
-                            <select id="report-reason" name="reason" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                            <select id="report-reason" name="reason" required @error('reason') aria-invalid="true" aria-describedby="report-reason-error" @enderror class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
                                 <option value="fraude" @selected(old('reason') === 'fraude')>Item inexistente ou tentativa de golpe</option>
                                 <option value="termos" @selected(old('reason') === 'termos')>Violação dos termos do jogo</option>
                                 <option value="preco" @selected(old('reason') === 'preco')>Preço abusivo ou anúncio duplicado</option>
                                 <option value="Outro" @selected(old('reason') === 'Outro')>Outro motivo</option>
                             </select>
-                            @error('reason')<p class="text-xs text-rose-400 mt-1" role="alert">{{ $message }}</p>@enderror
+                            <x-field-error name="reason" id="report-reason-error" />
                         </div>
                         <div>
                             <label for="report-details" class="block text-xs font-semibold text-slate-300 mb-1">Detalhes e evidências</label>
-                            <textarea id="report-details" name="details" rows="4" minlength="10" maxlength="1000" required placeholder="Descreva os fatos..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white">{{ old('details') }}</textarea>
-                            @error('details')<p class="text-xs text-rose-400 mt-1" role="alert">{{ $message }}</p>@enderror
+                            <textarea id="report-details" name="details" @error('details') aria-invalid="true" aria-describedby="report-details-error" @enderror rows="4" minlength="10" maxlength="1000" required placeholder="Descreva os fatos..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white">{{ old('details') }}</textarea>
+                            <x-field-error name="details" id="report-details-error" />
                         </div>
                         <div class="flex justify-end gap-2 pt-2">
                             <button type="button" @click="reportOpen = false" class="px-3 py-2 text-xs font-semibold text-slate-400 hover:text-white">Cancelar</button>

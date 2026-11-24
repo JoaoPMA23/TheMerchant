@@ -61,6 +61,20 @@ class AuthTest extends TestCase
         $response->assertSessionHasErrors('email');
     }
 
+    public function test_login_error_is_shown_next_to_the_email_field(): void
+    {
+        $this->from(route('login'))->post(route('login'), [
+            'email' => 'nobody@example.com',
+            'password' => 'wrong-password',
+        ]);
+
+        $this->get(route('login'))->assertOk()
+            ->assertSee('aria-describedby="login-email-error"', false)
+            ->assertSee('id="login-email-error"', false)
+            ->assertSee('autocomplete="current-password"', false)
+            ->assertSee('As credenciais fornecidas não correspondem aos nossos registros.');
+    }
+
     public function test_user_can_logout(): void
     {
         $user = User::factory()->create();
@@ -76,7 +90,7 @@ class AuthTest extends TestCase
         $response = $this->get(route('register'));
 
         $response->assertOk();
-        $response->assertSee('Criar Nova Conta');
+        $response->assertSee('Crie sua conta');
     }
 
     public function test_visitor_can_register_as_buyer(): void

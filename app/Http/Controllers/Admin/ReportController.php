@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ModerateReportRequest;
+use App\Http\Requests\RestoreReportedListingRequest;
 use App\Models\Report;
 use App\Services\ReportModerationService;
 use Illuminate\Http\RedirectResponse;
@@ -32,5 +33,17 @@ class ReportController extends Controller
         $service->moderate($request->user(), $report, $request->validated());
 
         return back()->with('success', 'Julgamento de moderação registrado.');
+    }
+
+    public function restoreListing(RestoreReportedListingRequest $request, Report $report, ReportModerationService $service): RedirectResponse
+    {
+        $this->authorize('restoreListing', $report);
+        $listing = $service->restoreListing($request->user(), $report, $request->validated('resolution_notes'));
+
+        $message = $listing->status === 'rascunho'
+            ? 'Anúncio restaurado como rascunho.'
+            : 'Anúncio restaurado e pausado. O vendedor já pode reativá-lo.';
+
+        return back()->with('success', $message);
     }
 }
