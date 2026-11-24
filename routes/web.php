@@ -5,13 +5,13 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\Buyer\CartController;
 use App\Http\Controllers\Buyer\CheckoutController;
 use App\Http\Controllers\Buyer\OrderController;
 use App\Http\Controllers\Buyer\ReviewController;
-use App\Http\Controllers\Auth\EmailVerificationController;
-use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ListingPublicController;
 use App\Http\Controllers\Seller\ApplicationController;
@@ -41,9 +41,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/cadastro', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/cadastro', [AuthController::class, 'register']);
     Route::get('/esqueci-minha-senha', [PasswordResetController::class, 'request'])->name('password.request');
-Route::post('/esqueci-minha-senha', [PasswordResetController::class, 'send'])->middleware('throttle:account-recovery')->name('password.email');
-Route::get('/redefinir-senha/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
-Route::post('/redefinir-senha', [PasswordResetController::class, 'update'])->middleware('throttle:account-recovery')->name('password.update');
+    Route::post('/esqueci-minha-senha', [PasswordResetController::class, 'send'])->middleware('throttle:account-recovery')->name('password.email');
+    Route::get('/redefinir-senha/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
+    Route::post('/redefinir-senha', [PasswordResetController::class, 'update'])->middleware('throttle:account-recovery')->name('password.update');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');

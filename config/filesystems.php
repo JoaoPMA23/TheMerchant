@@ -1,5 +1,7 @@
 <?php
 
+use Composer\CaBundle\CaBundle;
+
 return [
 
     /*
@@ -59,8 +61,8 @@ return [
             'throw' => false,
             'report' => false,
             'http' => [
-                'verify' => class_exists(\Composer\CaBundle\CaBundle::class)
-                    ? \Composer\CaBundle\CaBundle::getSystemCaRootBundlePath()
+                'verify' => class_exists(CaBundle::class)
+                    ? CaBundle::getSystemCaRootBundlePath()
                     : true,
             ],
         ],
