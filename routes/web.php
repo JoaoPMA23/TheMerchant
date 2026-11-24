@@ -126,6 +126,7 @@ Route::middleware(['auth', EnsureAccountIsActive::class, 'can:viewAny,App\Models
     Route::resource('usuarios', AdminUserController::class)->only(['index', 'update']);
     Route::get('denuncias', [AdminReportController::class, 'index'])->name('reports.index');
     Route::patch('denuncias/{report}/moderar', [AdminReportController::class, 'moderate'])->name('reports.moderate');
+    Route::patch('denuncias/{report}/restaurar-anuncio', [AdminReportController::class, 'restoreListing'])->name('reports.restore');
 });
 
 /*

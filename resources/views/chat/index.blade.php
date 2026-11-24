@@ -202,7 +202,7 @@
                                       maxlength="2000"
                                       placeholder="Digite sua mensagem... (Enter para enviar, Shift+Enter para nova linha)"
                                       class="w-full bg-slate-900 border border-slate-700 rounded-2xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 resize-none transition"
-                                      :disabled="isSubmitting || accessRevoked"></textarea>
+                                      :disabled="accessRevoked"></textarea>
                         </div>
 
                         <div class="flex items-center justify-between">

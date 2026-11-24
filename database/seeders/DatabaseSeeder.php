@@ -41,6 +41,24 @@ class DatabaseSeeder extends Seeder
             'total_sales' => 0,
         ]);
 
+        // Segunda vendedora: permite demonstrar pedido com itens de dois vendedores.
+        $coach = User::create([
+            'name' => 'Marina Costa (Coach)',
+            'email' => 'vendedora2@themerchant.local',
+            'password' => Hash::make('vendedora123456'),
+            'status' => 'active',
+            'email_verified_at' => now(),
+        ]);
+
+        SellerProfile::create([
+            'user_id' => $coach->id,
+            'status' => 'approved',
+            'bio' => 'Coach de Valorant e League of Legends. Sessões por chamada de voz com revisão de partidas.',
+            'reputation_score' => 0,
+            'total_reviews' => 0,
+            'total_sales' => 0,
+        ]);
+
         User::create([
             'name' => 'João Pedro (Comprador)',
             'email' => 'comprador@themerchant.local',

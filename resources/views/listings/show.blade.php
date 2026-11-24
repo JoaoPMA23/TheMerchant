@@ -125,11 +125,11 @@
                     <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-xl font-bold text-slate-950" aria-hidden="true">{{ substr($listing->seller->name, 0, 1) }}</div>
                     <div>
                         <h4 class="font-bold text-sm text-white">{{ $listing->seller->name }}</h4>
-                        <div class="mt-1" aria-label="{{ $sellerProfile?->total_reviews ? 'Avaliação média de '.number_format($rating, 2, ',', '.').' em 5, baseada em '.$sellerProfile->total_reviews.' avaliações' : 'Vendedor sem avaliações' }}">
+                        <div class="mt-1" aria-label="{{ $sellerProfile?->total_reviews ? 'Avaliação média de '.number_format($rating, 2, ',', '.').' em 5, baseada em '.$sellerProfile->total_reviews.($sellerProfile->total_reviews === 1 ? ' avaliação' : ' avaliações') : 'Vendedor sem avaliações' }}">
                             @if(($sellerProfile?->total_reviews ?? 0) > 0)
                                 <span class="text-amber-400 text-sm" aria-hidden="true">@for($star = 1; $star <= 5; $star++){{ $star <= round($rating) ? '★' : '☆' }}@endfor</span>
                                 <span class="text-amber-300 text-xs font-bold">{{ number_format($rating, 2, ',', '.') }}/5</span>
-                                <span class="text-slate-500 text-xs">({{ $sellerProfile->total_reviews }} avaliações)</span>
+                                <span class="text-slate-500 text-xs">({{ $sellerProfile->total_reviews }} {{ $sellerProfile->total_reviews === 1 ? 'avaliação' : 'avaliações' }})</span>
                             @else
                                 <span class="text-slate-500 text-xs">Sem avaliações</span>
                             @endif

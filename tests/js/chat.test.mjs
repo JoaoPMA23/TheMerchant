@@ -125,3 +125,20 @@ test('Shift+Enter and IME composition retain their native behavior', () => {
         assert.equal(prevented, sent);
     }
 });
+
+test('message field stays enabled while sending so keyboard focus and typing are kept', async () => {
+    const textarea = template.match(/<textarea id="chat-message-input"[\s\S]*?<\/textarea>/)[0];
+    const disabled = textarea.match(/:disabled="([^"]+)"/)[1];
+    assert.equal(vm.runInNewContext(disabled, { isSubmitting: true, accessRevoked: false }), false);
+    assert.equal(vm.runInNewContext(disabled, { isSubmitting: false, accessRevoked: true }), true);
+
+    let finish;
+    const { state } = setup(() => new Promise(resolve => { finish = resolve; }));
+    state.draftText = 'Primeira';
+    const sending = state.sendMessage();
+    assert.equal(state.isSubmitting, true);
+    state.draftText = 'Segunda, digitada durante o envio';
+    finish(response({ message: { ...message(1, 1), body: 'Primeira', client_uuid: state.messages[0].client_uuid } }));
+    await sending;
+    assert.equal(state.draftText, 'Segunda, digitada durante o envio');
+});
