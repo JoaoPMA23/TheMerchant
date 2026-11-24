@@ -30,5 +30,7 @@ docs/ACEITE_ISSUE_20.md
 docs/ACEITE_ISSUE_19.md
 database/seeders/FreeListingsSeeder.php
 
-# Configuracao local do Claude Code (fica so na maquina de cada um)
+# Configuracao local de agentes de IA (fica so na maquina de cada um)
 .claude/
+.agents/
+.codex/
