@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 class ReportModerationService
 {
     /**
-     * @param array{status: string, resolution_notes: string, block_listing?: bool} $data
+     * @param  array{status: string, resolution_notes: string, block_listing?: bool}  $data
      */
     public function moderate(User $moderator, Report $report, array $data): Report
     {
