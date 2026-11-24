@@ -6,7 +6,7 @@
             <p class="text-xs text-slate-400">
                 @if($listing->seller->sellerProfile->total_reviews > 0)
                     Vendedor: {{ number_format($listing->seller->sellerProfile->reputation_score, 2, ',', '.') }} / 5
-                    ({{ $listing->seller->sellerProfile->total_reviews }} avaliações)
+                    ({{ $listing->seller->sellerProfile->total_reviews }} {{ $listing->seller->sellerProfile->total_reviews === 1 ? 'avaliação' : 'avaliações' }})
                 @else
                     Vendedor sem avaliações
                 @endif

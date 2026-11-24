@@ -71,6 +71,23 @@ class ListingDetailTest extends TestCase
         $this->assertDatabaseHas('listings', ['id' => $listing->id, 'views_count' => 1]);
     }
 
+    public function test_review_count_uses_singular_for_a_single_review(): void
+    {
+        $listing = $this->listing();
+        $listing->seller->sellerProfile()->update(['reputation_score' => 4, 'total_reviews' => 1]);
+
+        $this->get(route('listings.show', $listing->slug))
+            ->assertOk()
+            ->assertSee('(1 avaliação)')
+            ->assertSee('baseada em 1 avaliação"', false)
+            ->assertDontSee('1 avaliações');
+
+        $this->get(route('listings.index'))
+            ->assertOk()
+            ->assertSee('(1 avaliação)')
+            ->assertDontSee('1 avaliações');
+    }
+
     public function test_listing_image_uses_the_configured_s3_disk(): void
     {
         config(['filesystems.default' => 's3']);
