@@ -70,6 +70,21 @@
                             <span class="block mt-1 text-slate-500">Moderada por {{ $report->moderator->name }}{{ $report->updated_at ? ' em '.$report->updated_at->format('d/m/Y H:i') : '' }}</span>
                         @endif
                     </div>
+
+                    @can('restoreListing', $report)
+                        <form action="{{ route('admin.reports.restore', $report) }}" method="POST" class="mt-4 pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-end gap-3">
+                            @csrf
+                            @method('PATCH')
+                            <div class="flex-1 w-full">
+                                <label for="restore-{{ $report->id }}" class="block text-[11px] text-slate-400 mb-1">O anúncio está bloqueado. Motivo para restaurar</label>
+                                <input id="restore-{{ $report->id }}" type="text" name="resolution_notes" required minlength="10" maxlength="1000" placeholder="Ex.: vendedor comprovou a origem do item" aria-describedby="restore-help-{{ $report->id }}" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white">
+                                <p id="restore-help-{{ $report->id }}" class="mt-1 text-[11px] text-slate-500">O anúncio volta pausado e só aparece no catálogo quando o vendedor reativar.</p>
+                            </div>
+                            <button type="submit" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold">
+                                Restaurar anúncio
+                            </button>
+                        </form>
+                    @endcan
                 @endif
 
                 @if($report->audits->isNotEmpty())
@@ -79,7 +94,11 @@
                             @foreach($report->audits as $audit)
                                 <li class="rounded-lg bg-slate-950 px-3 py-2 text-[11px] text-slate-400">
                                     <span class="font-semibold text-slate-200">{{ $audit->moderator?->name ?? 'Moderador removido' }}</span>
-                                    <span>alterou {{ str_replace('_', ' ', $audit->previous_report_status ?? 'nova') }} para {{ str_replace('_', ' ', $audit->new_report_status) }}</span>
+                                    @if($audit->action === 'anuncio_restaurado')
+                                        <span>restaurou o anúncio ({{ $audit->new_listing_status }})</span>
+                                    @else
+                                        <span>alterou {{ str_replace('_', ' ', $audit->previous_report_status ?? 'nova') }} para {{ str_replace('_', ' ', $audit->new_report_status) }}</span>
+                                    @endif
                                     @if($audit->new_listing_status === 'bloqueado' && $audit->previous_listing_status !== 'bloqueado')
                                         <span>e bloqueou o anúncio</span>
                                     @endif
