@@ -6,6 +6,8 @@ Este contrato define o comportamento alvo; sua aceitação não comprova estoque
 reservas, pagamento, entrega ou chat funcionando. As implementações e migrations
 cabem às issues consumidoras listadas ao final. Não depende de #5 nem de M3/M4.
 
+> **Situação em 25/11/2026:** o contrato foi implementado nas #5, #6, #11 a #14 e #18. Os exemplos D01 a D14 são cobertos por `CheckoutReservationTest`, `OrderTest`, `ReviewTest` e `SaleDeliveryTest`. A disputa real entre duas conexões em PostgreSQL ainda não tem evidência (#16). Ver [RASTREABILIDADE.md](RASTREABILIDADE.md).
+
 ## 1. Tipos e elegibilidade
 
 - Cosmético (`cosmetic`): unidade única, quantidade obrigatoriamente 1, capacidade

@@ -84,7 +84,7 @@ Exige reconciliação manual auditável (contrato #29, seção 2).
 PAYMENT_GATEWAY=abacatepay
 ABACATEPAY_API_KEY=            # chave de desenvolvimento enquanto estiver em dev mode
 ABACATEPAY_WEBHOOK_SECRET=     # o mesmo segredo informado ao cadastrar o webhook
-ABACATEPAY_DEV_MODE=true       # mostra o botão "Simular pagamento" (somente dev)
+ABACATEPAY_DEV_MODE=true       # mostra o botão "Simular pagamento (modo dev)" (somente dev)
 ```
 
 No painel da AbacatePay, cadastre o webhook com o evento `transparent.completed` (e, se quiser, `transparent.refunded`/`transparent.disputed`)
@@ -94,7 +94,7 @@ apontando para:
 https://themerchant-p2be.onrender.com/api/webhooks/payment?webhookSecret=<ABACATEPAY_WEBHOOK_SECRET>
 ```
 
-O endpoint precisa ser HTTPS público. Em `localhost` o webhook não chega. Use o botão **"Já paguei — atualizar status"**
+O endpoint precisa ser HTTPS público. Em `localhost` o webhook não chega sem um túnel. Use o botão **"Já paguei, atualizar status"**
 (consulta o provedor) ou **"Simular pagamento (modo dev)"**.
 
 Processos necessários: o `docker/entrypoint.sh` sobe `php artisan schedule:work` (desative com `RUN_SCHEDULER=false`) e,
@@ -108,6 +108,24 @@ quando `QUEUE_CONNECTION` não é `sync`, `php artisan queue:work` (desative com
 4. Confira: pedido `pago`, cosmético `vendido`, serviço com `capacity` reduzida, item `em_entrega` e o evento em `payment_events`.
 5. Aguarde 15 minutos sem pagar outro pedido e rode `php artisan payments:reconcile`; confira pedido `cancelado` e reserva `released`.
 6. Registre as evidências sem a chave de API nem o segredo do webhook.
+
+### Resultado registrado (12/11/2026)
+
+Executado localmente (`php artisan serve`, SQLite, `QUEUE_CONNECTION=sync`) com chave de **desenvolvimento**, sem dinheiro real. Evidência completa no [comentário da #16](https://github.com/IgorMarcoli/TheMerchant/issues/16).
+
+- Três PIX gerados no provedor e confirmados de três formas: botão "Simular pagamento (modo dev)", botão "Já paguei, atualizar status" (consulta ao provedor) e **webhook real** `transparent.completed`, recebido por um túnel HTTPS temporário.
+- O webhook real passou pela validação do `webhookSecret` e do HMAC, gravou um evento sanitizado em `payment_events` e consultou o status no provedor antes de confirmar.
+- Reenvio do mesmo evento (sintético, assinado corretamente): `200`, um único evento e capacidade sem nova baixa. Corpo alterado com assinatura antiga e requisição sem segredo: `401`.
+- Recusa definitiva, gateway indisponível com "Gerar PIX novamente" e expiração com `payments:reconcile` funcionaram como descrito na seção 3.
+- Bug encontrado e corrigido: a AbacatePay recusa travessão (U+2014) na descrição da cobrança. Textos enviados ao provedor não devem usar esse caractere.
+
+### Ainda pendente
+
+- Duas compras concorrentes do mesmo cosmético único em **PostgreSQL**, com duas conexões (o SQLite ignora `lockForUpdate`).
+- Webhook fora de ordem com eventos reais do provedor. Hoje só D09 e D13 cobrem esse caso.
+- Repetir o fluxo no Render com as variáveis da AbacatePay e o webhook apontando para o domínio público. O deploy está respondendo HTTP 500 e a causa ainda não foi investigada.
+
+A integração é de **sandbox**: não há homologação com chave de produção nem cobrança real.
 
 ## 7. Cobertura automatizada
 

@@ -43,7 +43,7 @@ O Reverb não reavalia permissões de uma conexão já aberta. Por isso a revoga
 4. **Reconexão:** o `pusher-js` pede nova autorização em `/broadcasting/auth` a cada reconexão. A rota exige sessão válida e conta ativa, e o canal (`App\Broadcasting\ConversationChannel`) aplica a mesma policy. A reassinatura é negada.
 5. **Navegador:** ao receber `401`, `403` ou `419`, a tela sai do canal, para a sincronização, desabilita o envio e mostra "Acesso encerrado". Com o WebSocket ativo há também uma verificação HTTP a cada 15 s, então a revogação aparece mesmo sem novas mensagens.
 
-O teste `test_suspension_revokes_read_send_and_reconnection_for_an_established_session` comprova o fluxo com duas sessões. O teste de regressão dedicado fica na #32.
+O teste `test_suspension_revokes_read_send_and_reconnection_for_an_established_session` comprova o fluxo com duas sessões. Na #32 (24/11/2026), a suspensão foi repetida com Reverb e worker reais: em até 20 s a tela mostrou "Acesso encerrado" e a sessão antiga recebeu `401` na leitura, `419` no envio e `401` na reautorização do canal.
 
 ## 3. Variáveis de ambiente
 
@@ -132,3 +132,9 @@ node --test tests/js/chat.test.mjs
 - `tests/js/chat.test.mjs`: comportamento do navegador (envio, nova tentativa com o mesmo UUID após falha de rede, sincronização, queda e volta da conexão, Shift+Enter e composição IME).
 
 Os testes usam SQLite em memória e broadcaster simulado. A entrega em tempo real com Reverb e worker reais, o uso no celular e por teclado e a queda do worker dependem do roteiro da seção 6, com duas pessoas.
+
+## 8. Evidência com infraestrutura real
+
+O roteiro da seção 6 foi executado em 24/11/2026 em ambiente local (SQLite, `BROADCAST_CONNECTION=reverb`, `QUEUE_CONNECTION=database`), com comprador e vendedor em sessões separadas. Resultado registrado no [comentário da #32](https://github.com/IgorMarcoli/TheMerchant/issues/32): mensagens sem recarregar, XSS exibido como texto, contador de não lidas de 3 para 0, recuperação após queda do Reverb (reconexão em cerca de 30 s) e do worker (aviso pendente transmitido sem duplicar), reenvio com o mesmo UUID gravado uma vez, `403` para terceira conta, revogação por suspensão e uso em 375 px com teclado. O banco terminou com exatamente as 10 mensagens enviadas.
+
+Não validado: o Reverb como segundo serviço no Render (seção 5).

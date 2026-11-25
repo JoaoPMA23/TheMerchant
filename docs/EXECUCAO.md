@@ -2,7 +2,7 @@
 
 [Voltar ao README](../README.md) · [Testes e validações](TESTES.md)
 
-Guia da base inspecionada em 18/09/2026. Os comandos partem da raiz do repositório. Os exemplos principais usam PowerShell no Windows; comandos PHP/Composer são equivalentes em Linux/macOS.
+Guia revisado em 25/11/2026. Os comandos partem da raiz do repositório. Para a demonstração completa (app, Reverb e worker), siga também o [roteiro de apresentação](ROTEIRO_APRESENTACAO.md). Os exemplos principais usam PowerShell no Windows; comandos PHP/Composer são equivalentes em Linux/macOS.
 
 ## 1. Dependências
 
@@ -88,7 +88,7 @@ BROADCAST_CONNECTION=log
 
 O `.env.example` usa sessão, cache e fila em banco; as migrations auxiliares de `sessions`, `cache` e `jobs` estão versionadas. O perfil acima permite iniciar com arquivos locais e jobs síncronos. A conexão está definida em `config/database.php`.
 
-Pagamentos usam a AbacatePay (PIX). Para testar localmente, preencha `ABACATEPAY_API_KEY` com a chave de **desenvolvimento** e `ABACATEPAY_DEV_MODE=true`; a página do pedido oferece "Simular pagamento". Nunca use a chave de produção em ambiente local. Detalhes em [PAGAMENTOS.md](PAGAMENTOS.md).
+Pagamentos usam a AbacatePay (PIX, API v2). Para testar localmente, preencha `ABACATEPAY_API_KEY` com a chave de **desenvolvimento**, `ABACATEPAY_WEBHOOK_SECRET` com um segredo forte e `ABACATEPAY_DEV_MODE=true`; a página do pedido oferece "Simular pagamento (modo dev)". Nunca use a chave de produção em ambiente local. Anúncio com preço R$ 0,00 não gera PIX. Detalhes em [PAGAMENTOS.md](PAGAMENTOS.md).
 
 ```powershell
 php artisan config:clear
@@ -113,12 +113,13 @@ O seeder usa `create()` e e-mails/slugs fixos; rodá-lo novamente pode gerar err
 | Papel | E-mail | Senha local |
 | :--- | :--- | :--- |
 | Administrador | admin@themerchant.local | admin123456 |
-| Vendedor | vendedor@themerchant.local | vendedor123456 |
+| Vendedor (skins) | vendedor@themerchant.local | vendedor123456 |
+| Vendedora (coaching) | vendedora2@themerchant.local | vendedora123456 |
 | Comprador | comprador@themerchant.local | comprador123456 |
 
-Essas credenciais são exclusivas de demonstração. A reputação e os contadores do vendedor também são dados fictícios, não avaliações produzidas por compras reais.
+Essas credenciais são exclusivas de demonstração. Os vendedores começam sem avaliações e sem vendas; a reputação é recalculada a partir de avaliações reais.
 
-O seeder mantém jogos, categorias e contas de demonstração, mas não cria anúncios nem imagens de produtos. O catálogo inicia vazio para que os itens sejam cadastrados manualmente, inclusive após a migração para outro banco.
+O `DatabaseSeeder` também chama o `DemoCatalogSeeder`, que cria 11 anúncios sem imagens: skins de CS2 do vendedor e coaching de Valorant e League of Legends da vendedora, com preços acima de zero para o PIX ser gerado no sandbox. Rodar esse seeder de novo atualiza pelo slug, sem duplicar. Os anúncios gratuitos `[TESTE]` (R$ 0,00, só para testar carrinho) ficam à parte: `php artisan db:seed --class=FreeListingsSeeder`.
 
 As capas de jogos referenciadas no seeder podem ser disponibilizadas em `storage/app/public/games/` (`cs2.jpg`, `valorant.jpg`, `lol.jpg`, `dota2.jpg`). A ligação `public/storage` precisa existir para imagens enviadas pelo cadastro de anúncios.
 
@@ -141,7 +142,7 @@ Mantenha esse terminal aberto e use outro para comandos. Encerre com `Ctrl+C`.
 | Endereço | Finalidade |
 | :--- | :--- |
 | http://127.0.0.1:8000/up | Verificação de inicialização; não homologa banco/pagamento |
-| http://127.0.0.1:8000/ | Retorna `Hello World` no estado atual |
+| http://127.0.0.1:8000/ | Vitrine com jogos e anúncios recentes |
 | http://127.0.0.1:8000/anuncios | Catálogo |
 | http://127.0.0.1:8000/login | Login |
 | http://127.0.0.1:8000/cadastro | Cadastro |
@@ -150,11 +151,12 @@ Mantenha esse terminal aberto e use outro para comandos. Encerre com `Ctrl+C`.
 | http://127.0.0.1:8000/pedidos | Pedidos |
 | http://127.0.0.1:8000/vendedor/anuncios | Anúncios do vendedor |
 | http://127.0.0.1:8000/vendedor/vendas | Vendas |
+| http://127.0.0.1:8000/chat | Conversas |
 | http://127.0.0.1:8000/admin/dashboard | Painel administrativo |
 
 A existência de uma rota não comprova que todos os seus cenários funcionam. Confira permissões e fluxos com [TESTES.md](TESTES.md).
 
-Mantenha o servidor vinculado a `127.0.0.1`: há uma pendência conhecida de exposição de diagnósticos na [#28](https://github.com/IgorMarcoli/TheMerchant/issues/28).
+Os diagnósticos HTTP foram removidos na [#28](https://github.com/IgorMarcoli/TheMerchant/issues/28). Mesmo assim, mantenha o servidor local vinculado a `127.0.0.1`.
 
 ## 6. Frontend hoje e evolução para Vite
 
@@ -195,7 +197,9 @@ php artisan queue:failed
 
 Antes de repetir um job, confirme que a operação é idempotente e que a causa foi corrigida. Sessão/cache em banco também exigem migrations próprias; não são necessárias com os drivers `file`.
 
-**Chat:** Reverb/Echo, canais privados e tabelas ainda serão implementados nas #30–#32. Não há comando de chat pronto para executar nesta revisão; o guia deverá incorporar inicialização do Reverb após essa entrega.
+**Chat:** implementado nas #30 a #32. Com `BROADCAST_CONNECTION=reverb` e `QUEUE_CONNECTION=database`, rode em terminais separados `php artisan serve`, `php artisan reverb:start` e `php artisan queue:work`. Variáveis, produção e roteiro com duas sessões em [CHAT_TEMPO_REAL.md](CHAT_TEMPO_REAL.md). Com `BROADCAST_CONNECTION=log` o chat funciona por sincronização HTTP, sem o aviso instantâneo.
+
+**Pagamentos:** `php artisan schedule:work` roda `payments:reconcile` a cada minuto (expira reservas vencidas, consulta PIX pendentes e repete estornos). Para uma conferência pontual, rode `php artisan payments:reconcile`.
 
 ## 8. Problemas frequentes
 
@@ -205,15 +209,15 @@ Antes de repetir um job, confirme que a operação é idempotente e que a causa 
 | `vendor/autoload.php` ausente | Executar `composer install` |
 | `No application encryption key` | Preparar `.env` e gerar chave do ambiente novo |
 | `could not find driver` | Habilitar `pdo_pgsql` (Supabase) ou `pdo_sqlite` (testes) no PHP CLI mostrado por `php --ini` |
-| `Connection refused` / `Access denied` | Conferir MySQL, porta, credenciais e permissão no banco |
+| `Connection refused` / `Access denied` | Conferir host do Session pooler, porta, credenciais e permissão no banco |
 | Tabela `sessions`, `cache` ou `jobs` ausente | Executar as migrations auxiliares existentes |
 | E-mail/slug duplicado no seed | Seeder já foi executado; não repetir sem necessidade |
 | Erro 419 em formulário | Conferir sessão/cookies, `@csrf`, URL e consistência entre localhost/127.0.0.1 |
 | Configuração antiga | `php artisan config:clear`; reiniciar servidor/worker |
 | Imagem quebrada | Conferir arquivo físico e `public/storage`; no Windows, checar permissão para links simbólicos |
-| Página inicial mostra Hello World | Comportamento atual; acessar `/anuncios` |
-| Pagamento volta diretamente ao site | Preferência local simulada; não houve cobrança real |
-| Teste acusa UserFactory ausente | Bloqueio conhecido; ver guia de testes |
+| "O gateway recusou a criação do pagamento" | Conferir `ABACATEPAY_API_KEY` (chave de desenvolvimento), preço acima de R$ 0,00 e `storage/logs/laravel.log` |
+| PIX pago mas pedido continua pendente | Em `localhost` o webhook não chega sem túnel; usar "Já paguei, atualizar status" ou "Simular pagamento (modo dev)" |
+| Chat mostra "Sincronizado" em vez de "Tempo real ativo" | Reverb parado ou `BROADCAST_CONNECTION=log`; ver [CHAT_TEMPO_REAL.md](CHAT_TEMPO_REAL.md) |
 
 Logs locais:
 

@@ -1,6 +1,6 @@
 # Guia de testes e validações
 
-[Voltar ao README](../README.md) · [Executar o projeto](EXECUCAO.md)
+[Voltar ao README](../README.md) · [Executar o projeto](EXECUCAO.md) · [Rastreabilidade](RASTREABILIDADE.md) · [Roteiro de apresentação](ROTEIRO_APRESENTACAO.md)
 
 Este guia separa verificações disponíveis hoje dos critérios das próximas entregas. Uma rota existente, HTTP 200 ou teste de instanciação não comprovam a regra de negócio completa.
 
@@ -32,10 +32,10 @@ php artisan test
 ### Teste unitário sem banco
 
 ```powershell
-php vendor/phpunit/phpunit/phpunit --no-configuration --bootstrap vendor/autoload.php tests/Unit/CheckoutServiceTest.php
+php artisan test --testsuite=Unit
 ```
 
-Esse teste apenas instancia `CheckoutService` com mock do gateway. Não verifica preço, transação, concorrência ou pagamento.
+Os testes de `tests/Unit` cobrem o adaptador da AbacatePay com API simulada (`AbacatePayGatewayTest`) e os rótulos de status (`StatusLabelTest`). Regras de checkout, reserva e pagamento ficam nos testes de feature.
 
 ### Feature com SQLite em memória
 
@@ -74,9 +74,18 @@ APP_CONFIG_CACHE="/tmp/themerchant-testing-$$-$(date +%s)-config.php" \
 php vendor/phpunit/phpunit/phpunit --no-configuration --bootstrap vendor/autoload.php tests
 ```
 
-SQLite em memória serve ao primeiro diagnóstico. Locks/concorrência e SQL específicos também precisam ser testados em MySQL com banco exclusivo, por exemplo `themerchant_testing`, e credencial restrita a ele. Não reutilize `themerchant` para esses testes.
+SQLite em memória serve ao primeiro diagnóstico. Locks/concorrência e SQL específicos também precisam ser testados em PostgreSQL com banco ou schema exclusivo e credencial restrita a ele (pendência da #16). Não reutilize o banco de desenvolvimento para esses testes.
 
 ### Resultados observados
+
+Registros mais recentes, em **24/11/2026**, na branch `João`, com PHP 8.4.26, Laravel 12.73.0 e SQLite em memória:
+
+| Registro | `php artisan test` | `npm test` | Pint |
+| :--- | :--- | :--- | :--- |
+| Relatório da [#24](https://github.com/IgorMarcoli/TheMerchant/issues/24) (commit `13dc070`) | 233 testes, 1547 asserções | 22 testes | Aprovado |
+| Validação ponta a ponta da [#21](https://github.com/IgorMarcoli/TheMerchant/issues/21) | 234 testes | 23 testes | Aprovado |
+
+A #24 inclui o mapa de cada item do checklist para as classes de teste. Ele foi incorporado à [matriz de rastreabilidade](RASTREABILIDADE.md), que liga cada RF e RNF à evidência.
 
 Consolidação da #24 em **11/11/2026**, na branch `João` (a partir de `21c2b03`), com PHP 8.4.26, Laravel 12.70.2, Node.js 26.12.1 e SQLite em memória:
 
@@ -145,7 +154,8 @@ Não foram executados migrations/seeds no banco de desenvolvimento, build Vite, 
 - [x] Versionar configuração PHPUnit com bootstrap, suites e isolamento explícito.
 - [ ] Revisar campos obrigatórios dos dados de teste de categorias/anúncios.
 - [ ] Separar testes de dispatch (fila simulada) de processamento do job.
-- [ ] Validar integração com worker real e banco exclusivo.
+- [x] Validar integração com worker real: chat com `queue:work` e Reverb reais em 24/11/2026 (#32).
+- [ ] Validar concorrência em PostgreSQL com banco exclusivo e duas conexões (#16).
 - [x] Após configurar a suíte, padronizar `php artisan test` no CI.
 
 ## 3. Validação estática e inicialização
@@ -170,7 +180,7 @@ git diff --check
 | Cadastro/sessão | Criar conta, entrar, sair e tentar acessar perfil | Validação e bloqueio após logout; RF01–RF02 |
 | Perfil/senha | Trocar dados; fornecer senha atual incorreta | Validação e credenciais coerentes |
 | Permissões | Conta sem perfil aprovado tenta vender; vendedor tenta administrar | Negação sem alterar dados; administrador sem perfil também não publica; RF04 |
-| Recuperação/verificação | Recuperar acesso sem login; expirar/reutilizar link | Fluxo seguro; RF03/#27, ainda pendente |
+| Recuperação/verificação | Recuperar acesso sem login; expirar/reutilizar link | Fluxo seguro; RF03/#27 implementado, envio real pelo Resend registrado na #25 |
 | Diagnósticos | Revisar autorização com dados fictícios | Sem acesso público a dados internos; #28 |
 
 ### M2 — Catálogo
@@ -178,10 +188,10 @@ git diff --check
 | Cenário | Passos | Resultado esperado |
 | :--- | :--- | :--- |
 | Anúncio | Publicar com imagem/preço e tentar editar como outro vendedor | Validação e autorização; #5–#6 |
-| Busca | Combinar jogo/categoria/preço/reputação, paginar e limpar | Filtros preservados, resultados corretos; #7–#8 |
+| Busca | Combinar jogo/categoria/preço, nota mínima do vendedor e ordenação por reputação, paginar e limpar | Filtros preservados, vendedor sem avaliações por último; #7 e #8 |
 | Visibilidade | Pausar/bloquear anúncio; acessar como visitante | Compra/acesso indevidos bloqueados no servidor |
 | Denúncia | Enviar motivo autenticado; repetir como visitante | Registro persistido; visitante impedido; #10/RF16 |
-| Coaching | Definir sessões, duração e capacidade | Condições explícitas; #29 ainda planejado |
+| Coaching | Definir sessões, duração e capacidade | Condições explícitas; contrato #29 implementado |
 
 ### M3 — Compra e pagamentos
 
@@ -196,20 +206,21 @@ git diff --check
 | Assinatura/dados | Enviar assinatura inválida ou valor/moeda divergentes | Rejeição sem alteração indevida |
 | Falhas | Recusa, gateway indisponível, aprovação tardia | Reconciliação e estado consistente |
 
-**Limitação atual:** o gateway é simulado; não comprova verificação de assinatura no provedor. Abrir a tela de sucesso não representa aprovação real.
+**Situação atual:** o pagamento usa a AbacatePay (API v2) com chave de **desenvolvimento** (`devMode`), sem dinheiro real. A homologação local de 12/11/2026 ([#16](https://github.com/IgorMarcoli/TheMerchant/issues/16)) registrou:
 
-Para teste exploratório **somente local**, crie um pedido fictício, configure `QUEUE_CONNECTION=sync` e substitua o número:
+| Cenário | Resultado |
+| :--- | :--- |
+| Aprovação | Três PIX gerados no provedor; confirmados pelo botão "Simular pagamento (modo dev)", pelo "Já paguei, atualizar status" e por **webhook real** da AbacatePay |
+| Assinatura | `webhookSecret` e HMAC `X-Webhook-Signature` validados; corpo com `amount` alterado e assinatura antiga recusado com `401`; requisição sem segredo recusada com `401` |
+| Idempotência | Mesmo evento reenviado 2 vezes: `200`, um único registro em `payment_events`, capacidade sem nova baixa. O reenvio foi sintético, porque o provedor não reenviou |
+| Recusa definitiva | Pedido `cancelado`, reservas `released` e itens devolvidos ao carrinho |
+| Gateway indisponível | Pedido `pendente` com reserva mantida e "Gerar PIX novamente" funcionando depois |
+| Expiração | `payments:reconcile` cancelou o pedido e liberou a reserva com o vencimento real |
+| Pagamento tardio | Não reproduzível no sandbox (o PIX vence 60 s antes da reserva); coberto por D06 e D13 |
 
-```powershell
-$payload = @{
-    action = 'payment.created'
-    data = @{ id = 'demo-local-001' }
-    external_reference = 'SUBSTITUA_PELO_NUMERO_DO_PEDIDO_FICTICIO'
-} | ConvertTo-Json -Depth 3
-Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:8000/api/webhooks/payment' -ContentType 'application/json' -Body $payload
-```
+**Ainda pendente (#16):** compra concorrente em PostgreSQL com duas conexões; webhook fora de ordem com eventos reais do provedor (hoje só os testes automáticos cobrem); repetir o fluxo no Render, que responde HTTP 500 no momento.
 
-Esse envio **altera o pedido fictício** no comportamento atual. Repetir o mesmo payload ajuda a explorar duplicidade; conferir pagamentos e status no banco local. HTTP 200 confirma recebimento, não prova que um pedido foi processado. A ausência de assinatura é limitação da simulação, nunca o contrato de produção.
+O webhook exige segredo e assinatura HMAC do corpo bruto, então não há mais teste exploratório com `Invoke-RestMethod` sem assinatura: a requisição é recusada. Em ambiente local, o webhook só chega por um túnel HTTPS. Sem túnel, use os botões da página do pedido, que consultam o provedor. Passo a passo em [PAGAMENTOS.md](PAGAMENTOS.md#6-homologação-em-sandbox-16).
 
 ### M4 — Pós-venda e chat
 
@@ -219,21 +230,21 @@ Esse envio **altera o pedido fictício** no comportamento atual. Repetir o mesmo
 | Entrega antes de pagar | Negada; vendedor vê apenas seus itens; #18 |
 | Coaching | Todas as sessões do item concluídas antes da avaliação; #29 |
 | Avaliação | Uma por item pago/entregue, sem aguardar outro vendedor; #19–#21 |
-| Chat em duas sessões | Mensagem aparece sem reload e persiste; regressão automatizada em `ChatTest` e `ChatRegressionTest`, E2E real pendente (#32) |
+| Chat em duas sessões | Mensagem aparece sem reload e persiste; regressão automatizada em `ChatTest` e `ChatRegressionTest`; E2E com Reverb e worker reais registrado em 24/11/2026 (#32) |
 | Terceiro ou suspenso | Não lê/envia/assina canal privado |
 | Reconexão/retry | Recupera mensagens perdidas sem duplicar |
 | Não lidas | Contador/cursor independentes, leitura após exibição |
 
-O chat precisa de E2E com Reverb/worker reais; mocks não comprovam entrega em tempo real. Comandos, cobertura automatizada e roteiro com duas sessões estão em [CHAT_TEMPO_REAL.md](CHAT_TEMPO_REAL.md#6-roteiro-manual-com-duas-sessões).
+Mocks não comprovam entrega em tempo real; por isso a #32 registrou o teste com Reverb e worker reais em ambiente local. O Reverb no Render ainda não foi validado. Comandos, cobertura automatizada e roteiro com duas sessões estão em [CHAT_TEMPO_REAL.md](CHAT_TEMPO_REAL.md#6-roteiro-manual-com-duas-sessões).
 
 ### M5 — Administração e apresentação
 
-- [ ] Gestão de usuários/jogos/categorias preserva integridade (#22).
-- [ ] Suspensão impede operações protegidas, incluindo chat.
-- [ ] Denúncia recebe parecer; bloquear/restaurar exige permissão e elegibilidade (#23).
-- [ ] Logs não expõem credenciais ou conteúdo privado (#24).
-- [ ] PDF/diagramas, requisitos e backlog descrevem o mesmo escopo (#33).
-- [ ] Apresentação demonstra compra, reserva, pagamento, entrega, reputação, chat e moderação (#25).
+- [x] Gestão de usuários/jogos/categorias preserva integridade (#22): `AdminTest`.
+- [x] Suspensão impede operações protegidas, incluindo chat: `AdminTest`, `ChatRegressionTest` e teste real da #32.
+- [x] Denúncia recebe parecer; bloquear/restaurar exige permissão e elegibilidade (#23, #24): `ReportModerationTest`. Sem evidência manual registrada.
+- [x] Payload de webhook e eventos do chat sem dados sensíveis (#24): `WebhookPaymentTest`, `ChatRegressionTest`.
+- [ ] Documentação, requisitos e backlog sincronizados (#33); figuras do documento acadêmico ainda precisam ser reexportadas.
+- [ ] Apresentação demonstra compra, reserva, pagamento, entrega, reputação, chat e moderação (#25): roteiro em [ROTEIRO_APRESENTACAO.md](ROTEIRO_APRESENTACAO.md), execução a registrar.
 
 ## 5. Usabilidade e desempenho
 
@@ -263,4 +274,4 @@ Pendências:
 
 Concluir uma issue exige executar seus critérios, registrar evidências, avaliar regressões e atualizar a documentação do comportamento entregue. Explicitar falhas e cenários não executados.
 
-A release depende de RF03, revisão dos diagnósticos, pagamento/estoque, testes do chat e revisão documental. Abrir a aplicação no navegador não basta para concluir M1 ou a entrega final.
+A release depende das pendências da #16 (concorrência em PostgreSQL, webhook fora de ordem com eventos reais e Render), da revisão documental (#33) e do roteiro executado (#25). Abrir a aplicação no navegador não basta para concluir a entrega final.

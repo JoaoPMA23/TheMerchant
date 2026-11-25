@@ -27,7 +27,7 @@ Use `php artisan migrate` com schema `laravel` vazio, ou o SQL gerado por `php s
 
 A migration de chat cria as duas tabelas em instalações novas e preserva as tabelas manuais já existentes com o formato do SQL fornecido. Cria índices para unicidade da conversa, idempotência do envio e histórico. Dados duplicados interrompem a migration para revisão, sem exclusão automática. O rollback dessa migration é bloqueado para não apagar histórico preexistente.
 
-A base de chat recebida da main já contém controller, service, policy, interface e testes HTTP. A migration de 23/09 delega à adoção idempotente de 24/09 para não recriar tabelas manuais; ambas preservam o histórico no rollback. Transporte real, reconexão e revogação de canais continuam dependendo da validação das issues #30–#32; os testes HTTP não comprovam essas entregas.
+A base de chat recebida da main já contém controller, service, policy, interface e testes HTTP. A migration de 23/09 delega à adoção idempotente de 24/09 para não recriar tabelas manuais; ambas preservam o histórico no rollback. Transporte real, reconexão e revogação de canais foram validados nas issues #30 a #32, com Reverb e worker reais em 24/11/2026 (ver [CHAT_TEMPO_REAL.md](CHAT_TEMPO_REAL.md#8-evidência-com-infraestrutura-real)).
 
 ## Verificação desta correção
 
