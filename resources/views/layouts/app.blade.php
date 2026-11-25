@@ -17,8 +17,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Plugin Focus (x-trap) mantém o foco dentro dos modais; precisa carregar antes do Alpine. -->
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Versão fixa (a mesma do package-lock) para uma atualização do CDN não mudar o comportamento sem commit. -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.17.4/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.4/dist/cdn.min.js"></script>
 
     <script>
         tailwind.config = {

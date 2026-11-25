@@ -8,7 +8,7 @@
         <form action="{{ route('register') }}" method="POST" class="space-y-4">
             @csrf
             <div>
-                <label for="register-name" class="block text-xs font-semibold text-slate-300 mb-1">Nome Completo</label>
+                <label for="register-name" class="block text-xs font-semibold text-slate-300 mb-1">Nome completo</label>
                 <input id="register-name" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name" @error('name') aria-invalid="true" aria-describedby="register-name-error" @enderror class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
                 <x-field-error name="name" id="register-name-error" />
             </div>
@@ -28,12 +28,12 @@
             </div>
 
             <div>
-                <label for="register-password_confirmation" class="block text-xs font-semibold text-slate-300 mb-1">Confirmar Senha</label>
+                <label for="register-password_confirmation" class="block text-xs font-semibold text-slate-300 mb-1">Confirmar senha</label>
                 <input id="register-password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
             </div>
 
             <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-brand-600/10 transition">
-                Finalizar Cadastro
+                Finalizar cadastro
             </button>
         </form>
 

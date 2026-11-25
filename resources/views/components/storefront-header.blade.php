@@ -1,11 +1,14 @@
 <header class="tm-header">
     <div class="tm-container tm-topbar">
         <a href="{{ route('home') }}" class="tm-logo" aria-label="TheMerchant, página inicial"><span class="tm-logomark"><x-icon name="store" /></span><span>the<span class="tm-accent">merchant</span>.</span></a>
+        {{-- No catálogo a busca fica só no filtro da página, para não ter dois campos iguais na tela. --}}
+        @unless(request()->routeIs('listings.index'))
         <form action="{{ route('listings.index') }}" method="GET" class="tm-search" role="search">
             <label for="home-search" class="sr-only">Buscar itens ou serviços</label><x-icon name="search" />
             <input id="home-search" name="busca" type="search" placeholder="Buscar skin, jogo ou coaching" maxlength="150" value="{{ is_string(request('busca')) ? request('busca') : '' }}">
             <button type="submit" aria-label="Buscar"><x-icon /></button>
         </form>
+        @endunless
         <div class="tm-account">
             <a class="tm-cart" href="{{ route('cart.index') }}" aria-label="Meu carrinho"><x-icon name="cart" /></a>
             @auth
@@ -27,9 +30,7 @@
         <a class="tm-mobile-cart" href="{{ route('cart.index') }}"><x-icon name="cart" />Meu carrinho</a>
     </div></nav>
     @auth
-        @php
-            $unreadChatCount = app(\App\Services\ChatService::class)->getUnreadCountForUser(auth()->user());
-        @endphp
+        {{-- $unreadChatCount vem do App\View\Composers\UnreadChatCountComposer. --}}
         <nav class="tm-workspace-nav" aria-label="Minha área">
             <div class="tm-container tm-workspace-links">
                 <a href="{{ route('orders.index') }}" @if(request()->routeIs('orders.*')) aria-current="page" @endif>Meus pedidos</a>

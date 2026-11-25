@@ -4,29 +4,32 @@
 
 @section('content')
 <div class="max-w-5xl mx-auto space-y-8">
-    @if (! $user->hasVerifiedEmail())
-        <div class="p-4 rounded-xl bg-sky-950/80 border border-sky-500/40 text-sky-300 text-sm">
-            Seu e-mail ainda não foi confirmado.
-            <a href="{{ route('verification.notice') }}" class="font-bold underline">Confirmar e-mail</a>
-        </div>
-    @else
-        <p class="text-sm text-emerald-300">E-mail confirmado.</p>
-    @endif
-    <a href="{{ route('seller.application') }}" class="text-brand-400 font-semibold">Gerenciar meu perfil de vendedor</a>
     <!-- Header da Página -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800/80 pb-6">
         <div>
-            <x-page-heading title="Meu Perfil" eyebrow="Sua conta" description="Gerencie suas informações cadastrais, preferências de conta e segurança." />
+            <x-page-heading title="Meu perfil" eyebrow="Sua conta" description="Gerencie suas informações cadastrais, preferências de conta e segurança." />
         </div>
 
         <div class="flex items-center gap-2">
-            <span class="text-xs uppercase tracking-wider font-bold px-3 py-1.5 rounded-xl border {{ $user->isAdmin() ? 'bg-rose-950/60 border-rose-500/40 text-rose-300' : ($user->isSeller() ? 'bg-amber-950/60 border-amber-500/40 text-amber-300' : 'bg-brand-950/60 border-brand-500/40 text-brand-300') }}">
+            <span class="text-xs uppercase tracking-wider font-bold px-3 py-1.5 rounded-xl border {{ $user->isAdmin() ? 'bg-slate-800 border-slate-600 text-slate-200' : ($user->isSeller() ? 'bg-amber-950/60 border-amber-500/40 text-amber-300' : 'bg-brand-950/60 border-brand-500/40 text-brand-300') }}">
                 {{ $user->isAdmin() ? 'Administrador' : ($user->isSeller() ? 'Comprador e vendedor' : 'Comprador') }}
             </span>
             <span class="text-xs px-3 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 font-semibold">
-                ● Conta Ativa
+                ● Conta ativa
             </span>
         </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        @if (! $user->hasVerifiedEmail())
+            <div class="p-4 rounded-xl bg-sky-950/80 border border-sky-500/40 text-sky-300 text-sm">
+                Seu e-mail ainda não foi confirmado.
+                <a href="{{ route('verification.notice') }}" class="font-bold underline">Confirmar e-mail</a>
+            </div>
+        @else
+            <p class="text-sm text-emerald-300">E-mail confirmado.</p>
+        @endif
+        <a href="{{ route('seller.application') }}" class="inline-flex min-h-11 items-center text-brand-400 font-semibold hover:underline">Gerenciar meu perfil de vendedor</a>
     </div>
 
     @if ($errors->any())
@@ -54,14 +57,14 @@
                     </div>
                     <h2 class="text-lg font-bold text-white">{{ $user->name }}</h2>
                     <p class="text-xs text-slate-400">{{ $user->email }}</p>
-                    <span class="inline-block mt-2 text-[11px] text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-lg">
+                    <span class="inline-block mt-2 text-xs text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-lg">
                         Membro desde {{ $user->created_at ? $user->created_at->format('d/m/Y') : date('d/m/Y') }}
                     </span>
                 </div>
 
                 @if ($user->sellerProfile)
                     <div class="pt-6 space-y-4">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Desempenho Comercial</h3>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Desempenho comercial</h3>
                         <div class="grid grid-cols-2 gap-3">
                             <div class="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 text-center">
                                 <span class="text-xs text-slate-400 block">Reputação</span>
@@ -94,7 +97,7 @@
             <!-- Dicas de Segurança -->
             <div class="rounded-xl bg-slate-900/60 border border-slate-800/80 p-6">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2 mb-3">
-                    Dicas de Acesso Seguro
+                    Dicas de acesso seguro
                 </h3>
                 <ul class="text-xs text-slate-400 space-y-2">
                     <li class="flex items-start gap-2">
@@ -115,7 +118,7 @@
             <div class="rounded-xl bg-slate-900 border border-slate-800 p-8 shadow-xl">
                 <div class="mb-6">
                     <h2 class="text-xl font-black text-white flex items-center gap-2">
-                        Dados Pessoais
+                        Dados pessoais
                     </h2>
                     <p class="text-xs text-slate-400 mt-1">Mantenha seu nome e endereço de e-mail atualizados.</p>
                 </div>
@@ -126,7 +129,7 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="profile-name" class="block text-xs font-semibold text-slate-300 mb-1">Nome Completo</label>
+                            <label for="profile-name" class="block text-xs font-semibold text-slate-300 mb-1">Nome completo</label>
                             <input id="profile-name" type="text" name="name" value="{{ old('name', $user->name) }}" required maxlength="120" autocomplete="name"
                                 @error('name') aria-invalid="true" aria-describedby="profile-name-error" @enderror
                                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
@@ -134,7 +137,7 @@
                         </div>
 
                         <div>
-                            <label for="profile-email" class="block text-xs font-semibold text-slate-300 mb-1">Endereço de E-mail</label>
+                            <label for="profile-email" class="block text-xs font-semibold text-slate-300 mb-1">Endereço de e-mail</label>
                             <input id="profile-email" type="email" name="email" value="{{ old('email', $user->email) }}" required maxlength="150" autocomplete="email"
                                 @error('email') aria-invalid="true" aria-describedby="profile-email-error" @enderror
                                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition">
@@ -155,7 +158,7 @@
 
                     <div class="pt-2 flex justify-end">
                         <button type="submit" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-brand-600/10 transition flex items-center gap-2">
-                            Salvar Informações
+                            Salvar informações
                         </button>
                     </div>
                 </form>
@@ -165,7 +168,7 @@
             <div class="rounded-xl bg-slate-900 border border-slate-800 p-8 shadow-xl">
                 <div class="mb-6">
                     <h2 class="text-xl font-black text-white flex items-center gap-2">
-                        Trocar Senha de Acesso
+                        Trocar senha de acesso
                     </h2>
                     <p class="text-xs text-slate-400 mt-1">Para sua segurança, informe sua senha atual antes de definir uma nova.</p>
                 </div>
@@ -175,7 +178,7 @@
                     @method('PUT')
 
                     <div>
-                        <label for="profile-current-password" class="block text-xs font-semibold text-slate-300 mb-1">Senha Atual</label>
+                        <label for="profile-current-password" class="block text-xs font-semibold text-slate-300 mb-1">Senha atual</label>
                         <input id="profile-current-password" type="password" name="current_password" required autocomplete="current-password"
                             @error('current_password') aria-invalid="true" aria-describedby="profile-current-password-error" @enderror
                             class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition"
@@ -185,7 +188,7 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="profile-password" class="block text-xs font-semibold text-slate-300 mb-1">Nova Senha</label>
+                            <label for="profile-password" class="block text-xs font-semibold text-slate-300 mb-1">Nova senha</label>
                             <input id="profile-password" type="password" name="password" required minlength="8" autocomplete="new-password"
                                 @error('password') aria-invalid="true" aria-describedby="profile-password-error" @enderror
                                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition"
@@ -194,7 +197,7 @@
                         </div>
 
                         <div>
-                            <label for="profile-password-confirmation" class="block text-xs font-semibold text-slate-300 mb-1">Confirmar Nova Senha</label>
+                            <label for="profile-password-confirmation" class="block text-xs font-semibold text-slate-300 mb-1">Confirmar nova senha</label>
                             <input id="profile-password-confirmation" type="password" name="password_confirmation" required minlength="8" autocomplete="new-password"
                                 class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500 transition"
                                 placeholder="Repita a nova senha">
@@ -203,7 +206,7 @@
 
                     <div class="pt-2 flex justify-end">
                         <button type="submit" class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs border border-slate-700 hover:border-slate-600 transition flex items-center gap-2">
-                            Atualizar Senha
+                            Atualizar senha
                         </button>
                     </div>
                 </form>

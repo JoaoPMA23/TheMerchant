@@ -4,12 +4,14 @@ namespace App\Providers;
 
 use App\Services\Payments\AbacatePayGateway;
 use App\Services\Payments\PaymentGateway;
+use App\View\Composers\UnreadChatCountComposer;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Console\ServeCommand;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -33,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
 
         // A view padrão do Laravel usa fundo branco; todas as listagens seguem o tema escuro do catálogo.
         Paginator::defaultView('vendor.pagination.catalog');
+
+        View::composer('components.storefront-header', UnreadChatCountComposer::class);
 
         RateLimiter::for('account-recovery', function (Request $request): array {
             $email = $request->input('email');

@@ -13,7 +13,7 @@
 
 <div class="space-y-6" x-data="{ reportOpen: @js($reportModalHasErrors) }" @keydown.escape.window="reportOpen = false">
     <div>
-        <a href="{{ route('listings.index') }}" class="text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1">
+        <a href="{{ route('listings.index') }}" class="inline-flex min-h-11 items-center gap-1 text-xs font-semibold text-slate-400 hover:text-white transition">
             &larr; Voltar ao Catálogo
         </a>
     </div>
@@ -39,8 +39,8 @@
                         <span class="px-3 py-1 rounded-xl text-xs font-bold bg-slate-950/90 text-slate-200 border border-slate-700">{{ $listing->category->type === 'service' ? 'Serviço' : 'Item digital' }}</span>
                     </div>
 
-                    <button type="button" x-cloak x-show="images.length > 1" @click="changeImage((current - 1 + images.length) % images.length)" aria-label="Foto anterior" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/80 text-white border border-slate-700 hover:bg-slate-800">‹</button>
-                    <button type="button" x-cloak x-show="images.length > 1" @click="changeImage((current + 1) % images.length)" aria-label="Próxima foto" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/80 text-white border border-slate-700 hover:bg-slate-800">›</button>
+                    <button type="button" x-cloak x-show="images.length > 1" @click="changeImage((current - 1 + images.length) % images.length)" aria-label="Foto anterior" class="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 min-w-11 rounded-full bg-slate-950/80 text-white border border-slate-700 hover:bg-slate-800">‹</button>
+                    <button type="button" x-cloak x-show="images.length > 1" @click="changeImage((current + 1) % images.length)" aria-label="Próxima foto" class="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 min-w-11 rounded-full bg-slate-950/80 text-white border border-slate-700 hover:bg-slate-800">›</button>
                     <span x-cloak x-show="images.length > 1" x-text="`${current + 1} / ${images.length}`" class="absolute bottom-3 right-3 rounded-lg bg-slate-950/80 px-2 py-1 text-xs text-white" aria-live="polite"></span>
                 </div>
 
@@ -82,17 +82,19 @@
                 <div class="text-3xl font-black text-brand-400 mb-6">R$ {{ number_format($listing->price, 2, ',', '.') }}</div>
 
                 @if($isAvailable && ! $isOwnListing)
-                    <form action="{{ route('cart.add', $listing) }}" method="POST">
+                    <form action="{{ route('cart.add', $listing) }}" method="POST"
+                          x-data="{ enviando: false }" @submit="enviando = true" @pageshow.window="enviando = false" :aria-busy="enviando">
                         @csrf
-                        <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-brand-600/10 transition flex items-center justify-center gap-2">
-                            <x-icon name="cart" class="!h-5 !w-5" /> Adicionar ao carrinho
+                        <button type="submit" :disabled="enviando" class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-brand-600/10 transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-wait">
+                            <x-icon name="cart" class="!h-5 !w-5" />
+                            <span x-text="enviando ? 'Adicionando...' : 'Adicionar ao carrinho'">Adicionar ao carrinho</span>
                         </button>
                     </form>
                 @elseif($isOwnListing)
                     <div class="w-full py-3 text-center rounded-xl bg-slate-800 text-slate-400 font-semibold text-sm">Este é seu anúncio</div>
                 @else
                     <button type="button" disabled aria-disabled="true" class="w-full py-3 text-center rounded-xl bg-slate-800 text-slate-400 font-bold text-sm cursor-not-allowed">
-                        Indisponível · {{ ucfirst(str_replace('_', ' ', $listing->status)) }}
+                        Indisponível · {{ $listing->status_label }}
                     </button>
                 @endif
 
@@ -112,11 +114,11 @@
 
                 <div class="mt-5 rounded-xl bg-slate-950 border border-slate-800 p-4">
                     <h3 class="text-xs font-bold text-slate-200 mb-1">Condições de entrega</h3>
-                    <p class="text-[11px] leading-relaxed text-slate-400">
+                    <p class="text-xs leading-relaxed text-slate-400">
                         As condições específicas estão na descrição do anúncio. {{ $listing->category->type === 'service' ? 'Após a confirmação do pagamento, combine o horário e os detalhes da sessão com o vendedor.' : 'Após a confirmação do pagamento, acompanhe a entrega digital pelo pedido e alinhe os detalhes com o vendedor.' }}
                     </p>
                 </div>
-                <p class="text-[11px] text-slate-500 text-center mt-3">A disponibilidade é conferida novamente ao adicionar ao carrinho.</p>
+                <p class="text-xs text-slate-500 text-center mt-3">A disponibilidade é conferida novamente ao adicionar ao carrinho.</p>
             </section>
 
             <section class="rounded-xl bg-slate-900 border border-slate-800 p-6" aria-labelledby="seller-card-title">

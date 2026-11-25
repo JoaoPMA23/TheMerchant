@@ -114,16 +114,31 @@ test('messages with the same client key from different participants are not merg
 
 test('Shift+Enter and IME composition retain their native behavior', () => {
     const handler = template.match(/@keydown.enter="([^"]+)"/)[1];
+    const desktop = { matchMedia: () => ({ matches: true }) };
     for (const event of [{ shiftKey: true }, { isComposing: true }, {}]) {
         let prevented = false;
         let sent = false;
         vm.runInNewContext(handler, {
             $event: { ...event, preventDefault() { prevented = true; } },
             sendMessage() { sent = true; },
+            window: desktop,
         });
         assert.equal(sent, !event.shiftKey && !event.isComposing);
         assert.equal(prevented, sent);
     }
+});
+
+test('Enter on a touch keyboard breaks the line instead of sending', () => {
+    const handler = template.match(/@keydown.enter="([^"]+)"/)[1];
+    let prevented = false;
+    let sent = false;
+    vm.runInNewContext(handler, {
+        $event: { preventDefault() { prevented = true; } },
+        sendMessage() { sent = true; },
+        window: { matchMedia: () => ({ matches: false }) },
+    });
+    assert.equal(sent, false);
+    assert.equal(prevented, false);
 });
 
 test('message field stays enabled while sending so keyboard focus and typing are kept', async () => {

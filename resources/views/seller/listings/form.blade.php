@@ -102,7 +102,7 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <template x-for="photo in photos" :key="photo.token">
                 <div class="rounded-xl border border-slate-700 p-2 space-y-2">
-                    <img :src="photo.url" :alt="photo.name || 'Foto do anúncio'" width="200" height="150" class="w-full h-32 object-cover rounded-lg">
+                    <img :src="photo.url" :alt="photo.name || 'Foto do anúncio'" width="200" height="150" loading="lazy" class="w-full h-32 object-cover rounded-lg">
                     <template x-if="photo.id"><input type="hidden" name="retained_images[]" :value="photo.id"></template>
                     <label class="flex items-center gap-2 text-sm"><input type="radio" name="primary_image" :value="photo.token" x-model="primary"> Capa</label>
                     <button type="button" @click="removePhoto(photo.token)" class="text-sm text-rose-300 underline">Remover foto</button>

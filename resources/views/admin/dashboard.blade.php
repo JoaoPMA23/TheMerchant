@@ -12,7 +12,7 @@
 
         <div class="flex flex-wrap items-center gap-2">
             <a href="{{ route('admin.usuarios.index') }}" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-1.5 border border-slate-700">
-                Gerenciar Contas
+                Gerenciar contas
             </a>
             <a href="{{ route('admin.categorias.index') }}" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition flex items-center gap-1.5 border border-slate-700">
                 Categorias & Jogos
@@ -29,13 +29,13 @@
         <div class="p-6 rounded-xl bg-slate-900 border border-slate-800 shadow-xl flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between text-slate-400 mb-2">
-                    <span class="text-xs uppercase font-bold tracking-wider">Volume Transacionado</span>
+                    <span class="text-xs uppercase font-bold tracking-wider">Volume transacionado</span>
                 </div>
                 <div class="text-2xl font-black text-brand-400">
                     R$ {{ number_format($metrics['transacted_volume'], 2, ',', '.') }}
                 </div>
             </div>
-            <div class="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 leading-tight">
+            <div class="mt-4 pt-3 border-t border-slate-800/80 text-xs text-slate-400 leading-tight">
                 Gross Merchandise Volume (GMV) bruto de pedidos pagos/concluídos. Não representa receita ou comissão da plataforma.
             </div>
         </div>
@@ -44,13 +44,13 @@
         <div class="p-6 rounded-xl bg-slate-900 border border-slate-800 shadow-xl flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between text-slate-400 mb-2">
-                    <span class="text-xs uppercase font-bold tracking-wider">Volume de Pedidos</span>
+                    <span class="text-xs uppercase font-bold tracking-wider">Volume de pedidos</span>
                 </div>
                 <div class="text-2xl font-black text-white">
                     {{ $metrics['total_orders'] }}
                 </div>
             </div>
-            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center gap-2 text-[11px]">
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center gap-2 text-xs">
                 <span class="px-2 py-0.5 rounded-md font-bold bg-emerald-950 text-emerald-400 border border-emerald-800/60">
                     {{ $metrics['paid_orders'] }} pagos
                 </span>
@@ -67,13 +67,13 @@
         <div class="p-6 rounded-xl bg-slate-900 border border-slate-800 shadow-xl flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between text-slate-400 mb-2">
-                    <span class="text-xs uppercase font-bold tracking-wider">Usuários Cadastrados</span>
+                    <span class="text-xs uppercase font-bold tracking-wider">Usuários cadastrados</span>
                 </div>
                 <div class="text-2xl font-black text-white">
                     {{ $metrics['total_users'] }}
                 </div>
             </div>
-            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center gap-2 text-[11px]">
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center gap-2 text-xs">
                 <span class="text-emerald-400 font-bold">
                     {{ $metrics['active_users'] }} ativos
                 </span>
@@ -92,13 +92,13 @@
         <div class="p-6 rounded-xl bg-slate-900 border border-slate-800 shadow-xl flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between text-slate-400 mb-2">
-                    <span class="text-xs uppercase font-bold tracking-wider">Anúncios no Catálogo</span>
+                    <span class="text-xs uppercase font-bold tracking-wider">Anúncios no catálogo</span>
                 </div>
                 <div class="text-2xl font-black text-brand-400">
                     {{ $metrics['active_listings'] }}
                 </div>
             </div>
-            <div class="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400">
+            <div class="mt-4 pt-3 border-t border-slate-800/80 text-xs text-slate-400">
                 {{ $metrics['total_listings'] }} anúncios totais (inclui pausados, vendidos e bloqueados).
             </div>
         </div>
@@ -110,7 +110,7 @@
         <div class="rounded-xl bg-slate-900 border border-slate-800 p-6 shadow-xl">
             <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
                 <h2 class="text-sm font-bold text-white flex items-center gap-2">
-                    Últimos Pedidos Registrados
+                    Últimos pedidos registrados
                 </h2>
                 <span class="text-xs text-slate-500 font-semibold">Exibindo 5 mais recentes</span>
             </div>
@@ -121,7 +121,7 @@
                         <div>
                             <span class="font-mono font-bold text-white">{{ $order->order_number }}</span>
                             <span class="text-slate-400 ml-2">{{ $order->buyer?->name ?? 'Comprador' }}</span>
-                            <div class="text-[10px] text-slate-500 mt-0.5">
+                            <div class="text-xs text-slate-500 mt-0.5">
                                 {{ $order->created_at->format('d/m/Y H:i') }}
                             </div>
                         </div>
@@ -129,10 +129,10 @@
                             <span class="font-extrabold text-brand-400 block">
                                 R$ {{ number_format($order->total_amount, 2, ',', '.') }}
                             </span>
-                            <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded
+                            <span class="text-xs uppercase font-bold px-2 py-0.5 rounded
                                 {{ in_array($order->status, ['pago', 'em_andamento', 'concluido']) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/40' :
                                    ($order->status === 'pendente' ? 'bg-amber-950 text-amber-400 border border-amber-800/40' : 'bg-slate-800 text-slate-400') }}">
-                                {{ $order->status }}
+                                {{ $order->status_label }}
                             </span>
                         </div>
                     </div>
@@ -148,7 +148,7 @@
         <div class="rounded-xl bg-slate-900 border border-slate-800 p-6 shadow-xl">
             <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
                 <h2 class="text-sm font-bold text-white flex items-center gap-2">
-                    Denúncias Pendentes de Moderação
+                    Denúncias pendentes de moderação
                 </h2>
                 <a href="{{ route('admin.reports.index') }}" class="text-xs text-brand-400 hover:text-brand-300 font-semibold">
                     Ver todas &rarr;
@@ -160,11 +160,11 @@
                     <div class="py-3 flex items-center justify-between text-xs">
                         <div class="max-w-[75%]">
                             <span class="font-bold text-rose-300">{{ $rep->reason }}</span>
-                            <span class="ml-1 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase {{ $rep->status === 'em_analise' ? 'bg-amber-950 text-amber-300' : 'bg-rose-950 text-rose-300' }}">
+                            <span class="ml-1 rounded px-1.5 py-0.5 text-xs font-bold uppercase {{ $rep->status === 'em_analise' ? 'bg-amber-950 text-amber-300' : 'bg-rose-950 text-rose-300' }}">
                                 {{ $rep->status === 'em_analise' ? 'Em análise' : 'Aberta' }}
                             </span>
-                            <p class="text-slate-400 text-[11px] truncate mt-0.5">{{ $rep->details }}</p>
-                            <span class="text-[10px] text-slate-500">
+                            <p class="text-slate-400 text-xs truncate mt-0.5">{{ $rep->details }}</p>
+                            <span class="text-xs text-slate-500">
                                 Anúncio: {{ $rep->listing?->title ?? 'Anúncio removido' }}
                             </span>
                         </div>

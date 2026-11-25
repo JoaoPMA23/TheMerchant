@@ -75,7 +75,7 @@ class AdminTest extends TestCase
         $this->actingAs($this->admin)->get(route('admin.dashboard'))
             ->assertOk()
             ->assertSee('Painel de Controle Administrativo')
-            ->assertSee('Volume Transacionado');
+            ->assertSee('Volume transacionado');
     }
 
     public function test_kpis_calculation_and_formulas(): void

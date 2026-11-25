@@ -36,8 +36,8 @@
         <div class="lg:col-span-4 border-r border-slate-800 flex flex-col bg-slate-950/40"
              :class="{ 'hidden lg:flex': mobileShowChat && activeConversationId, 'flex': !mobileShowChat || !activeConversationId }">
             <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/60">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Conversas Recentes</span>
-                <span class="text-[11px] font-semibold text-brand-400 bg-brand-950/60 px-2 py-0.5 rounded-full border border-brand-800/40">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Conversas recentes</span>
+                <span class="text-xs font-semibold text-brand-400 bg-brand-950/60 px-2 py-0.5 rounded-full border border-brand-800/40">
                     {{ $conversations->count() }}
                 </span>
             </div>
@@ -56,33 +56,29 @@
                             <h2 class="text-xs font-bold text-white truncate">
                                 {{ $other?->name ?? 'Usuário' }}
                             </h2>
-                            <span class="text-[10px] text-slate-500 whitespace-nowrap">
+                            <span class="text-xs text-slate-500 whitespace-nowrap">
                                 {{ $conversation->latestMessage?->created_at?->format('d/m H:i') ?? $conversation->updated_at->format('d/m') }}
                             </span>
                         </div>
 
-                        <div class="flex items-center gap-1.5 text-[11px] text-brand-400 font-medium mb-1 truncate">
+                        <div class="flex items-center gap-1.5 text-xs text-brand-400 font-medium mb-1 truncate">
                             <x-icon name="game" class="!h-3.5 !w-3.5" />
                             <span class="truncate">{{ $conversation->listing->title }}</span>
                         </div>
 
                         <div class="flex items-center justify-between text-xs">
-                            <p class="text-slate-400 text-[11px] truncate max-w-[200px]">
+                            <p class="text-slate-400 text-xs truncate max-w-[200px]">
                                 {{ $conversation->latestMessage?->body ?? 'Nenhuma mensagem ainda' }}
                             </p>
                             @if($unreadInConv > 0)
-                                <span class="px-1.5 py-0.5 rounded-full bg-brand-500 text-slate-950 font-black text-[10px] shrink-0">
+                                <span class="px-1.5 py-0.5 rounded-full bg-brand-500 text-slate-950 font-black text-xs shrink-0">
                                     {{ $unreadInConv }}
                                 </span>
                             @endif
                         </div>
                     </a>
                 @empty
-                    <div class="p-8 text-center text-slate-500 text-xs">
-                        <x-icon name="inbox" class="!h-8 !w-8 mx-auto mb-2" />
-                        Você ainda não conversou com ninguém.<br>
-                        Abra um anúncio e use o botão Falar com o vendedor.
-                    </div>
+                    <x-empty-state icon="inbox" title="Nenhuma conversa iniciada" description="Abra um anúncio e use o botão Falar com o vendedor para tirar dúvidas antes de comprar." :href="route('listings.index')" action="Explorar anúncios" />
                 @endforelse
             </div>
         </div>
@@ -97,7 +93,7 @@
                 <!-- Topo da Conversa / Contexto do Anúncio (RF08, RF21) -->
                 <div class="p-4 border-b border-slate-800 bg-slate-900/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <button type="button" @click="mobileShowChat = false" class="lg:hidden p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand-500" aria-label="Voltar para a lista de conversas">
+                        <button type="button" @click="mobileShowChat = false" class="lg:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-slate-800 text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand-500" aria-label="Voltar para a lista de conversas">
                             &larr;
                         </button>
                         <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-slate-950 font-black text-sm shrink-0">
@@ -106,11 +102,11 @@
                         <div>
                             <div class="flex items-center gap-2">
                                 <h2 class="text-sm font-bold text-white">{{ $activeOther?->name ?? 'Usuário' }}</h2>
-                                <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold bg-slate-800 text-slate-300">
+                                <span class="text-xs px-2 py-0.5 rounded-md font-semibold bg-slate-800 text-slate-300">
                                     {{ auth()->id() === $activeConversation->seller_id ? 'Comprador' : 'Vendedor' }}
                                 </span>
                             </div>
-                            <div class="text-[11px] text-slate-400 flex items-center gap-2">
+                            <div class="text-xs text-slate-400 flex items-center gap-2">
                                 <span class="inline-flex items-center gap-1"><x-icon name="lock" class="!h-3.5 !w-3.5" /> Chat privado</span>
                                 <span>•</span>
                                 <span>Dados pessoais protegidos</span>
@@ -121,9 +117,10 @@
                     <!-- Card de Contexto do Anúncio -->
                     <div class="bg-slate-950/70 border border-slate-800 px-3 py-2 rounded-xl flex items-center justify-between gap-3 sm:max-w-xs">
                         <div class="truncate">
-                            <span class="text-[10px] text-slate-500 block truncate">{{ $activeConversation->listing->game->name }}</span>
-                            <a href="{{ route('listings.show', $activeConversation->listing->slug) }}" class="text-xs font-bold text-brand-300 hover:underline truncate block" target="_blank" title="Ver Anúncio">
+                            <span class="text-xs text-slate-500 block truncate">{{ $activeConversation->listing->game->name }}</span>
+                            <a href="{{ route('listings.show', $activeConversation->listing->slug) }}" class="text-xs font-bold text-brand-300 hover:underline truncate block" target="_blank" rel="noopener" title="Ver anúncio (abre em nova aba)">
                                 {{ $activeConversation->listing->title }}
+                                <span class="sr-only">(abre em nova aba)</span>
                             </a>
                         </div>
                         <span class="text-xs font-extrabold text-white shrink-0">
@@ -157,9 +154,9 @@
                                  :class="msg.sender_id === authId
                                     ? 'bg-brand-600 text-slate-950 font-medium rounded-tr-none'
                                     : 'bg-slate-800 text-slate-100 rounded-tl-none border border-slate-700/60'">
-                                <div class="text-[10px] font-bold opacity-75 mb-0.5" x-text="msg.sender_name"></div>
+                                <div class="text-xs font-bold opacity-75 mb-0.5" x-text="msg.sender_name"></div>
                                 <div class="whitespace-pre-wrap break-words" x-text="msg.body"></div>
-                                <div class="mt-1 flex items-center justify-end gap-1.5 text-[9px] opacity-75">
+                                <div class="mt-1 flex items-center justify-end gap-1.5 text-xs opacity-75">
                                     <span x-text="msg.formatted_time"></span>
                                     <template x-if="msg.status === 'sending'">
                                         <span><x-icon name="clock" class="!h-3 !w-3" /><span class="sr-only">Enviando</span></span>
@@ -175,7 +172,7 @@
 
                             <!-- Botão de Retry para mensagens com erro -->
                             <template x-if="msg.status === 'error'">
-                                <button type="button" @click="retryMessage(msg)" class="mt-1 text-[10px] text-rose-400 hover:text-rose-300 underline font-semibold flex items-center gap-1 focus:outline-none focus:ring-1 focus:ring-rose-500">
+                                <button type="button" @click="retryMessage(msg)" class="mt-1 text-xs text-rose-400 hover:text-rose-300 underline font-semibold flex items-center gap-1 focus:outline-none focus:ring-1 focus:ring-rose-500">
                                     <x-icon name="refresh" class="!h-3 !w-3" /> Tentar novamente
                                 </button>
                             </template>
@@ -198,7 +195,7 @@
                                       rows="2"
                                       x-model="draftText"
                                       @input="saveDraft()"
-                                      @keydown.enter="if (!$event.shiftKey && !$event.isComposing) { $event.preventDefault(); sendMessage(); }"
+                                      @keydown.enter="if (!$event.shiftKey && !$event.isComposing && window.matchMedia('(pointer: fine)').matches) { $event.preventDefault(); sendMessage(); }"
                                       maxlength="2000"
                                       placeholder="Digite sua mensagem... (Enter para enviar, Shift+Enter para nova linha)"
                                       class="w-full bg-slate-900 border border-slate-700 rounded-2xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 resize-none transition"
@@ -207,10 +204,10 @@
 
                         <div class="flex items-center justify-between">
                             <div>
-                                <span class="text-[10px] text-slate-500 font-mono" :class="{ 'text-amber-400': draftText.length > 1800 }">
+                                <span class="text-xs text-slate-500 font-mono" :class="{ 'text-amber-400': draftText.length > 1800 }">
                                     <span x-text="draftText.length"></span>/2000 caracteres
                                 </span>
-                                <p x-show="sendError" x-text="sendError" role="status" class="text-[11px] text-rose-300 mt-1"></p>
+                                <p x-show="sendError" x-text="sendError" role="status" class="text-xs text-rose-300 mt-1"></p>
                             </div>
 
                             <div class="flex items-center gap-2">

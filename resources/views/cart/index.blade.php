@@ -3,7 +3,8 @@
 @section('title', 'Meu Carrinho')
 
 @section('content')
-<div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
+<div class="mx-auto max-w-6xl">
+    <x-checkout-steps :current="1" />
     <div class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <x-page-heading title="Seu carrinho" eyebrow="Passo 1 de 3" description="Confira seus anúncios antes de seguir para o checkout." />
         @if($cart && $cart->items->isNotEmpty())
@@ -40,13 +41,7 @@
     @endif
 
     @if(!$cart || $cart->items->isEmpty())
-        <div class="rounded-3xl border border-slate-800 bg-slate-900/70 px-6 py-14 text-center sm:py-20">
-            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-brand-400/20 bg-brand-400/10 text-brand-300"><x-icon name="cart" class="!h-8 !w-8" /></div>
-            <p class="mt-6 text-sm font-semibold text-brand-300">Nada por aqui ainda</p>
-            <h2 class="mt-2 text-2xl font-black text-white">Seu carrinho está vazio</h2>
-            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-400">Explore os anúncios e adicione cosméticos ou serviços para continuar.</p>
-            <a href="{{ route('listings.index') }}" class="mt-7 inline-flex items-center justify-center rounded-xl bg-brand-500 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-brand-400">Explorar anúncios</a>
-        </div>
+        <x-empty-state icon="cart" title="Seu carrinho está vazio" description="Explore os anúncios e adicione cosméticos ou serviços para continuar." :href="route('listings.index')" action="Explorar anúncios" class="rounded-3xl border border-slate-800" />
     @else
         @php($hasUnavailableItems = $cart->hasUnavailableItems())
         @if($hasUnavailableItems)
@@ -68,7 +63,7 @@
                         <div class="flex gap-4">
                             <div class="h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-slate-800 bg-slate-950 sm:h-24 sm:w-24">
                                 @if($listing && $listing->primaryImage)
-                                    <img src="{{ $listing->primaryImage->url }}" alt="Imagem de {{ $listing->title }}" class="h-full w-full object-cover">
+                                    <img src="{{ $listing->primaryImage->url }}" alt="Imagem de {{ $listing->title }}" width="96" height="96" loading="lazy" class="h-full w-full object-cover">
                                 @else
                                     <div class="flex h-full items-center justify-center text-slate-500"><x-icon :name="$listing?->category?->type === 'service' ? 'game' : 'gem'" class="!h-7 !w-7" /></div>
                                 @endif
@@ -76,7 +71,7 @@
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="min-w-0">
-                                        <p class="text-[10px] font-bold uppercase tracking-wider text-brand-300">{{ $listing?->game?->name }} · {{ $listing?->category?->name }}</p>
+                                        <p class="text-xs font-bold uppercase tracking-wider text-brand-300">{{ $listing?->game?->name }} · {{ $listing?->category?->name }}</p>
                                         <h3 class="mt-1 truncate text-sm font-bold text-white sm:text-base">
                                             @if($listing && $listing->isAvailable())
                                                 <a href="{{ route('listings.show', $listing->slug) }}" class="transition hover:text-brand-300">{{ $listing->title }}</a>
@@ -120,7 +115,7 @@
                                         <span class="text-xs text-slate-400">Quantidade <span class="ml-1 font-semibold text-slate-200">1</span> <span class="ml-1 text-slate-500">(item único)</span></span>
                                     @endif
                                     <div class="text-right">
-                                        <p class="text-[11px] text-slate-500">{{ $item->quantity > 1 ? 'R$ '.number_format((float) $item->unit_price, 2, ',', '.') . ' por sessão · subtotal' : 'Subtotal' }}</p>
+                                        <p class="text-xs text-slate-500">{{ $item->quantity > 1 ? 'R$ '.number_format((float) $item->unit_price, 2, ',', '.') . ' por sessão · subtotal' : 'Subtotal' }}</p>
                                         <p class="font-extrabold text-brand-300">R$ {{ number_format($item->subtotal(), 2, ',', '.') }}</p>
                                     </div>
                                 </div>
@@ -128,7 +123,7 @@
                         </div>
                     </article>
                 @endforeach
-                <a href="{{ route('listings.index') }}" class="inline-flex items-center gap-2 px-1 py-2 text-sm font-semibold text-slate-400 transition hover:text-brand-300">← Continuar explorando</a>
+                <a href="{{ route('listings.index') }}" class="inline-flex min-h-11 items-center gap-2 px-1 text-sm font-semibold text-slate-400 transition hover:text-brand-300">← Continuar explorando</a>
             </section>
 
             <aside class="lg:sticky lg:top-6" aria-labelledby="cart-summary-title">
@@ -146,15 +141,15 @@
                         <span>Total</span>
                         <span class="text-lg text-brand-300">R$ {{ number_format($cart->total(), 2, ',', '.') }}</span>
                     </div>
-                    <p class="mt-2 text-[11px] text-slate-500">O total será confirmado novamente no checkout.</p>
+                    <p class="mt-2 text-xs text-slate-500">O total será confirmado novamente no checkout.</p>
                     @if($hasUnavailableItems)
                         <button type="button" disabled aria-disabled="true" class="mt-6 block w-full cursor-not-allowed rounded-xl bg-slate-800 px-4 py-3.5 text-center text-sm font-bold text-slate-400">
                             Ajuste os itens indisponíveis
                         </button>
                     @else
-                        <a href="{{ route('checkout.index') }}" class="mt-6 block w-full rounded-xl bg-brand-500 px-4 py-3.5 text-center text-sm font-extrabold text-slate-950 shadow-lg shadow-brand-500/10 transition hover:bg-brand-400">Ir para o checkout <span aria-hidden="true">→</span></a>
+                        <a href="{{ route('checkout.index') }}" class="mt-6 block w-full rounded-xl bg-brand-600 px-4 py-3.5 text-center text-sm font-extrabold text-slate-950 shadow-lg shadow-brand-600/10 transition hover:bg-brand-500">Ir para o checkout <span aria-hidden="true">→</span></a>
                     @endif
-                    <p class="mt-3 text-center text-[11px] text-slate-500">Compra protegida · Pagamento seguro</p>
+                    <p class="mt-3 text-center text-xs text-slate-500">Compra protegida · Pagamento seguro</p>
                 </div>
             </aside>
         </div>

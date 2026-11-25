@@ -6,7 +6,7 @@
 <div class="max-w-4xl mx-auto space-y-6">
     <!-- Topo / Navegação -->
     <div class="flex items-center justify-between">
-        <a href="{{ route('orders.index') }}" class="text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1 focus:outline-none focus:ring-1 focus:ring-brand-500 rounded p-1">
+        <a href="{{ route('orders.index') }}" class="text-xs font-semibold text-slate-400 hover:text-white transition inline-flex min-h-11 items-center gap-1 focus:outline-none focus:ring-1 focus:ring-brand-500 rounded px-1">
             &larr; Voltar aos Meus Pedidos
         </a>
         <div class="flex items-center gap-2">
@@ -17,7 +17,7 @@
                    ($order->status === 'em_andamento' ? 'bg-cyan-950 text-cyan-400 border border-cyan-800' :
                    ($order->status === 'cancelado' ? 'bg-rose-950 text-rose-400 border border-rose-800' :
                    'bg-amber-950 text-amber-400 border border-amber-800'))) }}">
-                ● Status do Pedido: {{ str_replace('_', ' ', ucfirst($order->status)) }}
+                ● Status do Pedido: {{ $order->status_label }}
             </span>
         </div>
     </div>
@@ -32,26 +32,26 @@
                 </span>
             </div>
             <div class="sm:text-right">
-                <span class="text-xs text-slate-400 block mb-0.5">Total Consolidado</span>
+                <span class="text-xs text-slate-400 block mb-0.5">Total consolidado</span>
                 <span class="text-2xl sm:text-3xl font-black text-brand-400">
                     R$ {{ number_format($order->total_amount, 2, ',', '.') }}
                 </span>
-                <span class="text-[11px] text-slate-500 block mt-0.5">Preços congelados no ato da compra</span>
+                <span class="text-xs text-slate-500 block mt-0.5">Preços congelados no ato da compra</span>
             </div>
         </div>
 
         <!-- Timeline do Ciclo de Vida do Pedido (RF13, Contrato #13/#14) -->
         <div class="py-6 border-b border-slate-800">
             <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-1.5">
-                Linha do Tempo do Pedido
+                Linha do tempo do pedido
             </h2>
 
             @if($order->status === 'cancelado')
                 <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-800/60 text-xs text-rose-300 flex items-center gap-3">
                     <x-icon name="alert" class="!h-7 !w-7 shrink-0" />
                     <div>
-                        <strong class="font-bold block text-sm">Pedido Cancelado</strong>
-                        <span>Este pedido foi cancelado ou expirou antes da confirmação de pagamento pelo gateway. Nenhum valor pendente será cobrado.</span>
+                        <strong class="font-bold block text-sm">Pedido cancelado</strong>
+                        <span>Este pedido foi cancelado ou expirou antes da confirmação do pagamento. Nenhum valor pendente será cobrado.</span>
                     </div>
                 </div>
             @else
@@ -69,8 +69,8 @@
                             {{ $isPaid ? '✓' : '1' }}
                         </div>
                         <span class="text-xs font-bold text-white">1. Pedido Criado @if($isPaid)<span class="sr-only"> (etapa concluída)</span>@endif</span>
-                        <span class="text-[10px] text-slate-400 mt-0.5">Pendente</span>
-                        <span class="text-[9px] text-slate-500 mt-1 font-mono">{{ $order->created_at->format('d/m H:i') }}</span>
+                        <span class="text-xs text-slate-400 mt-0.5">{{ $isPaid ? 'Registrado' : 'Aguardando pagamento' }}</span>
+                        <span class="text-xs text-slate-500 mt-1 font-mono">{{ $order->created_at->format('d/m H:i') }}</span>
                     </div>
 
                     <!-- Etapa 2: Pagamento Aprovado -->
@@ -79,10 +79,10 @@
                             {{ $isPaid ? '✓' : '2' }}
                         </div>
                         <span class="text-xs font-bold text-white">2. Pagamento @if($isPaid)<span class="sr-only"> (etapa concluída)</span>@endif</span>
-                        <span class="text-[10px] text-slate-400 mt-0.5">
-                            {{ $isPaid ? 'Pago via Gateway' : 'Aguardando' }}
+                        <span class="text-xs text-slate-400 mt-0.5">
+                            {{ $isPaid ? 'Pago via PIX' : 'Aguardando' }}
                         </span>
-                        <span class="text-[9px] text-slate-500 mt-1 font-mono">
+                        <span class="text-xs text-slate-500 mt-1 font-mono">
                             {{ $order->payment ? $order->payment->created_at->format('d/m H:i') : ($isPaid ? $order->updated_at->format('d/m H:i') : '--') }}
                         </span>
                     </div>
@@ -93,10 +93,10 @@
                             {{ $isCompleted ? '✓' : '3' }}
                         </div>
                         <span class="text-xs font-bold text-white">3. Em Andamento @if($isCompleted)<span class="sr-only"> (etapa concluída)</span>@endif</span>
-                        <span class="text-[10px] text-slate-400 mt-0.5">
+                        <span class="text-xs text-slate-400 mt-0.5">
                             {{ $isCompleted ? 'Itens Prontos' : ($isPaid ? 'Em Entrega Digital' : 'Pendente') }}
                         </span>
-                        <span class="text-[9px] text-slate-500 mt-1">Vendedores acionados</span>
+                        <span class="text-xs text-slate-500 mt-1">Vendedores acionados</span>
                     </div>
 
                     <!-- Etapa 4: Concluído -->
@@ -105,14 +105,14 @@
                             {{ $isCompleted ? '✓' : '4' }}
                         </div>
                         <span class="text-xs font-bold text-white">4. Concluído @if($isCompleted)<span class="sr-only"> (etapa concluída)</span>@endif</span>
-                        <span class="text-[10px] text-slate-400 mt-0.5">
+                        <span class="text-xs text-slate-400 mt-0.5">
                             {{ $isCompleted ? 'Entrega Finalizada' : 'Aguardando Entrega' }}
                         </span>
-                        <span class="text-[9px] text-slate-500 mt-1">Avaliação liberada</span>
+                        <span class="text-xs text-slate-500 mt-1">Avaliação liberada</span>
                     </div>
                 </div>
 
-                <div class="mt-3 p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/80 text-[11px] text-slate-400 text-center">
+                <div class="mt-3 p-2.5 rounded-xl bg-slate-950/40 border border-slate-800/80 text-xs text-slate-400 text-center">
                     A linha do tempo acima mostra o estado do pedido. A entrega de cada item é feita e acompanhada separadamente pelo vendedor, nos itens abaixo.
                 </div>
             @endif
@@ -121,23 +121,23 @@
         <!-- Detalhes de Pagamento do Gateway (RF11, RF12, RNF04) -->
         <div class="py-6 border-b border-slate-800">
             <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-1.5">
-                Detalhes do Pagamento
+                Detalhes do pagamento
             </h2>
 
             @if($order->payment)
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-2xl bg-slate-950/70 border border-slate-800 text-xs">
                     <div>
-                        <span class="text-slate-500 block text-[10px] uppercase font-semibold">Provedor / Gateway</span>
+                        <span class="text-slate-500 block text-xs uppercase font-semibold">Processador de pagamento</span>
                         <span class="font-bold text-white uppercase">{{ strtoupper($order->payment->gateway) }}</span>
                     </div>
                     <div>
-                        <span class="text-slate-500 block text-[10px] uppercase font-semibold">ID da Transação</span>
+                        <span class="text-slate-500 block text-xs uppercase font-semibold">ID da transação</span>
                         <span class="font-mono text-slate-300 truncate block" title="{{ $order->payment->transaction_id }}">
                             {{ $order->payment->transaction_id }}
                         </span>
                     </div>
                     <div>
-                        <span class="text-slate-500 block text-[10px] uppercase font-semibold">Status do Gateway</span>
+                        <span class="text-slate-500 block text-xs uppercase font-semibold">Status do pagamento</span>
                         @php($paymentStatus = strtolower($order->payment->status))
                         <span class="font-semibold {{ in_array($paymentStatus, ['approved', 'paid']) ? 'text-emerald-400' : (in_array($paymentStatus, ['rejected', 'expired', 'cancelled', 'canceled', 'failed', 'refunded', 'disputed']) ? 'text-rose-400' : 'text-amber-300') }}">
                             ● {{ match ($paymentStatus) {
@@ -148,12 +148,12 @@
                                 'refunded' => 'Estornado',
                                 'disputed' => 'Em contestação',
                                 'pending', 'payment.created', 'in_process' => 'Aguardando / em análise',
-                                default => ucfirst(str_replace(['_', '.'], ' ', $paymentStatus)),
+                                default => \App\Support\StatusLabel::for($paymentStatus),
                             } }}
                         </span>
                     </div>
                     <div>
-                        <span class="text-slate-500 block text-[10px] uppercase font-semibold">Valor Processado</span>
+                        <span class="text-slate-500 block text-xs uppercase font-semibold">Valor processado</span>
                         <span class="font-bold text-white">
                             R$ {{ number_format($order->payment->amount, 2, ',', '.') }}
                         </span>
@@ -162,8 +162,8 @@
             @else
                 <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 text-xs flex items-center justify-between gap-4">
                     <div class="text-slate-400">
-                        <span class="font-semibold text-white block mb-0.5">Aguardando Confirmação do Provedor de Pagamento</span>
-                        <span>O processamento é realizado pelo gateway credenciado. Assim que o webhook assíncrono confirmar o pagamento, o status mudará para <strong>Pago</strong>.</span>
+                        <span class="font-semibold text-white block mb-0.5">Aguardando confirmação do provedor de pagamento</span>
+                        <span>O pagamento é processado pela AbacatePay. Assim que a confirmação automática chegar, o status mudará para <strong>Pago</strong>.</span>
                     </div>
                     <x-icon name="clock" class="!h-7 !w-7 shrink-0" />
                 </div>
@@ -174,7 +174,7 @@
         @if($order->notes)
             <div class="py-6 border-b border-slate-800">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    Instruções do Comprador para Entrega
+                    Instruções do comprador para entrega
                 </h2>
                 <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-xs text-slate-200 leading-relaxed font-mono whitespace-pre-wrap">
                     {{ $order->notes }}
@@ -188,7 +188,7 @@
                 <span class="flex items-center gap-1.5">
                      Itens Contratados ({{ $order->items->count() }})
                 </span>
-                <span class="text-[11px] text-slate-500 font-normal">Entrega individual por item</span>
+                <span class="text-xs text-slate-500 font-normal">Entrega individual por item</span>
             </h2>
 
             <div class="space-y-6">
@@ -204,19 +204,19 @@
                                     <div class="flex flex-wrap items-center gap-2">
                                         <h3 class="font-bold text-sm text-white">
                                             @if($item->listing)
-                                                <a href="{{ route('listings.show', $item->listing->slug) }}" target="_blank" class="hover:text-brand-300 transition hover:underline">
+                                                <a href="{{ route('listings.show', $item->listing->slug) }}" class="hover:text-brand-300 transition hover:underline">
                                                     {{ $item->listing_title ?: $item->listing->title }}
                                                 </a>
                                             @else
                                                 {{ $item->listing_title ?: 'Item indisponível' }}
                                             @endif
                                         </h3>
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase
+                                        <span class="px-2 py-0.5 rounded text-xs font-bold uppercase
                                             {{ ($item->listing?->category?->type === 'service') ? 'bg-purple-950 text-purple-300 border border-purple-800/60' : 'bg-brand-950 text-brand-300 border border-brand-800/60' }}">
                                             {{ ($item->listing?->category?->type === 'service') ? 'Serviço' : 'Cosmético Digital' }}
                                         </span>
                                     </div>
-                                    <div class="text-[11px] text-slate-400 mt-1 flex flex-wrap items-center gap-2">
+                                    <div class="text-xs text-slate-400 mt-1 flex flex-wrap items-center gap-2">
                                         <span>Jogo: <strong class="text-slate-300">{{ $item->listing?->game?->name ?? 'Geral' }}</strong></span>
                                         <span>•</span>
                                         <span>Categoria: <strong class="text-slate-300">{{ $item->listing?->category?->name ?? 'Geral' }}</strong></span>
@@ -233,14 +233,14 @@
 
                             <!-- Badge de Status de Entrega Individual do Item -->
                             <div class="flex flex-col sm:items-end">
-                                <span class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider
+                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
                                     {{ $item->delivery_status === 'entregue' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
                                        ($item->delivery_status === 'em_entrega' ? 'bg-cyan-950 text-cyan-400 border border-cyan-800' :
                                        'bg-slate-800 text-slate-400 border border-slate-700') }}">
-                                    Entrega: {{ str_replace('_', ' ', ucfirst($item->delivery_status)) }}
+                                    Entrega: {{ $item->delivery_status_label }}
                                 </span>
                                 @if($item->delivered_at)
-                                    <span class="text-[10px] text-slate-500 mt-1 font-mono">
+                                    <span class="text-xs text-slate-500 mt-1 font-mono">
                                         Entregue em {{ $item->delivered_at->format('d/m/Y H:i') }}
                                     </span>
                                 @endif
@@ -250,19 +250,19 @@
                         <!-- Valores, Quantidades e Duração/Instruções do Item -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 border-b border-slate-800/80 text-xs">
                             <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/60">
-                                <span class="text-slate-500 block text-[10px] uppercase font-semibold">Quantidade Contratada</span>
+                                <span class="text-slate-500 block text-xs uppercase font-semibold">Quantidade contratada</span>
                                 <span class="font-extrabold text-white text-sm">
                                     {{ $item->quantity }} {{ ($item->listing?->category?->type === 'service') ? 'sessão(ões)' : 'unidade(s)' }}
                                 </span>
                             </div>
                             <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/60">
-                                <span class="text-slate-500 block text-[10px] uppercase font-semibold">Preço Unitário (Congelado)</span>
+                                <span class="text-slate-500 block text-xs uppercase font-semibold">Preço Unitário (Congelado)</span>
                                 <span class="font-extrabold text-white text-sm">
                                     R$ {{ number_format($item->unit_price, 2, ',', '.') }}
                                 </span>
                             </div>
                             <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/60">
-                                <span class="text-slate-500 block text-[10px] uppercase font-semibold">Subtotal do Item</span>
+                                <span class="text-slate-500 block text-xs uppercase font-semibold">Subtotal do item</span>
                                 <span class="font-extrabold text-brand-400 text-sm">
                                     R$ {{ number_format($item->unit_price * $item->quantity, 2, ',', '.') }}
                                 </span>
@@ -288,7 +288,7 @@
                                     <strong class="font-bold flex items-center gap-1 text-purple-300 mb-1">
                                         Duração e Condições do Serviço / Coaching:
                                     </strong>
-                                    <p class="text-[11px] text-slate-300">
+                                    <p class="text-xs text-slate-300">
                                         A duração de cada sessão segue as especificações do anúncio. Utilize o chat direto abaixo para alinhar horário, link de Discord ou sala personalizada com o mentor.
                                     </p>
                                 </div>
@@ -297,7 +297,7 @@
                                     <strong class="font-bold flex items-center gap-1 text-brand-300 mb-1">
                                         Instruções de Envio do Cosmético Digital:
                                     </strong>
-                                    <p class="text-[11px] text-slate-400">
+                                    <p class="text-xs text-slate-400">
                                         O envio é feito via troca direta na plataforma do jogo ou pelo Trade URL informado no pedido. Fique atento às notificações no chat.
                                     </p>
                                 </div>
@@ -313,7 +313,7 @@
                                 <button type="submit"
                                         class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition flex items-center gap-1.5 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
                                         aria-label="Falar com {{ $item->seller->name }}">
-                                    <x-icon name="message" class="!h-4 !w-4" /> Falar com Vendedor
+                                    <x-icon name="message" class="!h-4 !w-4" /> Falar com vendedor
                                 </button>
                             </form>
                         </div>

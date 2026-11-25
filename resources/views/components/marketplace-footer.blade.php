@@ -1,5 +1,7 @@
 <footer class="market-footer" aria-label="Rodapé do marketplace">
     <div class="market-footer-inner">
+        {{-- O convite para o catálogo é de venda; nas telas do admin ele não faz sentido. --}}
+        @unless(request()->routeIs('admin.*'))
         <div class="market-footer-banner">
             <div>
                 <span class="market-footer-eyebrow">Procurando algo específico?</span>
@@ -8,6 +10,7 @@
             </div>
             <a class="market-footer-cta" href="{{ route('listings.index') }}">Ver catálogo <x-icon /></a>
         </div>
+        @endunless
 
         <div class="market-footer-grid">
             <div class="market-footer-brand">

@@ -4,12 +4,13 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto">
+    <x-checkout-steps :current="2" class="mb-6 flex justify-center" />
     <div class="mb-8 text-center">
-        <x-page-heading title="Finalização do Pedido" eyebrow="Passo 2 de 3" description="Confira os itens e as instruções de entrega antes de continuar." />
+        <x-page-heading title="Finalização do pedido" eyebrow="Passo 2 de 3" description="Confira os itens e as instruções de entrega antes de continuar." />
     </div>
 
     <div class="rounded-xl bg-slate-900 border border-slate-800 p-8 shadow-xl">
-        <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-6">Itens do Pedido</h2>
+        <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-6">Itens do pedido</h2>
         <div class="divide-y divide-slate-800 mb-6">
             @foreach($cart->items as $item)
                 <div class="py-4 text-sm">
@@ -27,11 +28,12 @@
         </div>
 
         <div class="pt-4 border-t border-slate-800 flex justify-between items-center mb-8">
-            <span class="text-sm font-semibold text-slate-400">Valor Total a Pagar</span>
+            <span class="text-sm font-semibold text-slate-400">Valor total a pagar</span>
             <span class="text-2xl font-black text-brand-400">R$ {{ number_format($cart->total(), 2, ',', '.') }}</span>
         </div>
 
-        <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" class="space-y-6">
+        <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST" class="space-y-6"
+              x-data="{ enviando: false }" @submit="enviando = true" @pageshow.window="enviando = false" :aria-busy="enviando">
             @csrf
             {{-- Chave idempotente: reenvio do mesmo formulário devolve o mesmo pedido. --}}
             <input type="hidden" name="checkout_key" value="{{ old('checkout_key', (string) \Illuminate\Support\Str::uuid()) }}">
@@ -44,7 +46,7 @@
             <div class="flex items-start gap-3 p-4 rounded-xl bg-slate-950 border border-slate-800">
                 <input type="checkbox" name="terms_agreed" id="terms" value="1" required @checked(old('terms_agreed')) @error('terms_agreed') aria-invalid="true" aria-describedby="terms-error" @enderror class="mt-1 rounded bg-slate-900 border-slate-700 text-brand-600 focus:ring-brand-500">
                 <label for="terms" class="text-xs text-slate-400">
-                    Declaro estar ciente de que as negociações devem seguir as políticas das plataformas de jogos e que meus dados de pagamento serão processados de forma segura pelo gateway credenciado.
+                    Declaro estar ciente de que as negociações devem seguir as políticas das plataformas de jogos e que meus dados de pagamento serão processados de forma segura pela AbacatePay, o processador de pagamento credenciado.
                 </label>
             </div>
             <x-field-error name="terms_agreed" id="terms-error" />
@@ -52,10 +54,11 @@
                 <div role="alert" class="p-3 rounded-xl bg-rose-950/50 border border-rose-800 text-sm text-rose-300">Revise os campos destacados antes de continuar.</div>
             @endif
 
-            <button type="submit" class="w-full py-4 bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-brand-600/15 transition text-sm flex items-center justify-center gap-2">
-                <x-icon name="lock" class="!h-5 !w-5" /> Confirmar Pedido e Pagar com PIX
+            <button type="submit" :disabled="enviando" class="w-full py-4 bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-brand-600/15 transition text-sm flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-wait">
+                <x-icon name="lock" class="!h-5 !w-5" />
+                <span x-text="enviando ? 'Gerando o PIX...' : 'Confirmar Pedido e Pagar com PIX'">Confirmar Pedido e Pagar com PIX</span>
             </button>
-            <p class="text-[11px] text-slate-500 text-center">Os itens ficam reservados por {{ \App\Models\Reservation::TTL_MINUTES }} minutos enquanto o PIX é pago. Pagamento processado pela AbacatePay.</p>
+            <p class="text-xs text-slate-500 text-center">Os itens ficam reservados por {{ \App\Models\Reservation::TTL_MINUTES }} minutos enquanto o PIX é pago. Pagamento processado pela AbacatePay.</p>
         </form>
     </div>
 </div>

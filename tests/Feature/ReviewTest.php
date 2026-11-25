@@ -159,9 +159,9 @@ class ReviewTest extends TestCase
     public function test_existing_order_form_uses_review_authorization(): void
     {
         $item = $this->purchase();
-        $this->actingAs($item->order->buyer)->get(route('orders.show', $item->order))->assertOk()->assertSee('Avaliar Vendedor');
+        $this->actingAs($item->order->buyer)->get(route('orders.show', $item->order))->assertOk()->assertSee('Avaliar vendedor');
         $item->order->update(['status' => 'pendente']);
-        $this->get(route('orders.show', $item->order))->assertOk()->assertDontSee('Avaliar Vendedor');
+        $this->get(route('orders.show', $item->order))->assertOk()->assertDontSee('Avaliar vendedor');
     }
 
     public function test_failure_updating_reputation_rolls_back_the_review(): void
@@ -202,7 +202,7 @@ class ReviewTest extends TestCase
             'review' => ['rating' => 4, 'comment' => 'Entrega rápida!'],
         ]);
         $this->get(route('orders.show', $item->order))->assertOk()
-            ->assertSee('Você avaliou com 4 de 5 estrelas')->assertSee('Entrega rápida!')->assertDontSee('Avaliar Vendedor');
+            ->assertSee('Você avaliou com 4 de 5 estrelas')->assertSee('Entrega rápida!')->assertDontSee('Avaliar vendedor');
     }
 
     public function test_async_validation_errors_and_duplicate_are_returned_as_json(): void

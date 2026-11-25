@@ -125,6 +125,8 @@ class DatabaseSeeder extends Seeder
             'type' => 'service',
         ]);
 
-        // Anúncios são cadastrados manualmente para os testes do marketplace.
+        // 4. Catálogo de demonstração (com preço, para o PIX ser gerado no sandbox).
+        // Os anúncios gratuitos de teste continuam separados: php artisan db:seed --class=FreeListingsSeeder
+        $this->call(DemoCatalogSeeder::class);
     }
 }

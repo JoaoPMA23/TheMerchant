@@ -8,8 +8,8 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
         <div>
             <div class="flex items-center gap-2 mb-1">
-                <a href="{{ route('admin.dashboard') }}" class="text-xs text-slate-400 hover:text-white transition">&larr; Painel Admin</a>
-                <span class="text-slate-600">/</span>
+                <a href="{{ route('admin.dashboard') }}" class="inline-flex min-h-11 items-center text-xs text-slate-400 hover:text-white transition">&larr; Painel Admin</a>
+                <span class="text-slate-500" aria-hidden="true">/</span>
                 <span class="text-xs text-brand-400 font-semibold">Catálogo</span>
             </div>
             <x-page-heading title="Gestão de Categorias e Jogos" eyebrow="Administração" description="Cadastre e gerencie os jogos e as categorias do marketplace." />
@@ -17,7 +17,7 @@
 
         <div class="flex items-center gap-3">
             <a href="#form-nova-categoria" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold text-xs transition flex items-center gap-1.5 shadow-lg shadow-brand-600/10">
-                <x-icon name="plus" class="!h-4 !w-4" /> Nova Categoria
+                <x-icon name="plus" class="!h-4 !w-4" /> Nova categoria
             </a>
         </div>
     </div>
@@ -27,14 +27,14 @@
         <!-- Card 1: Criar Nova Categoria (2 colunas) -->
         <div id="form-nova-categoria" class="lg:col-span-2 rounded-xl bg-slate-900 border border-slate-800 p-6 shadow-xl">
             <h2 class="text-base font-bold text-white mb-4 flex items-center gap-2">
-                Cadastrar Nova Categoria
+                Cadastrar nova categoria
             </h2>
 
             <form action="{{ route('admin.categorias.store') }}" method="POST" class="space-y-4">
                 @csrf
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label for="name" class="block text-xs font-semibold text-slate-300 mb-1">Nome da Categoria</label>
+                        <label for="name" class="block text-xs font-semibold text-slate-300 mb-1">Nome da categoria</label>
                         <input type="text" name="name" id="name" required @error('name') aria-invalid="true" aria-describedby="name-error" @enderror placeholder="Ex: Skins de Rifles, Coaching..."
                                value="{{ old('name') }}"
                                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
@@ -55,7 +55,7 @@
                     </div>
 
                     <div>
-                        <label for="type" class="block text-xs font-semibold text-slate-300 mb-1">Tipo da Categoria</label>
+                        <label for="type" class="block text-xs font-semibold text-slate-300 mb-1">Tipo da categoria</label>
                         <select name="type" id="type" required @error('type') aria-invalid="true" aria-describedby="type-error" @enderror class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
                             <option value="cosmetic" @selected(old('type') === 'cosmetic')>Cosmético (Skin, Item, Visual)</option>
                             <option value="service" @selected(old('type') === 'service')>Serviço (Coaching, Mentoria)</option>
@@ -74,7 +74,7 @@
 
                 <div class="flex justify-end pt-2">
                     <button type="submit" class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold text-xs transition shadow-lg shadow-brand-600/10">
-                        Salvar Categoria
+                        Salvar categoria
                     </button>
                 </div>
             </form>
@@ -83,7 +83,7 @@
         <!-- Card 2: Controle de Jogos (Ativação / Inativação) -->
         <div class="rounded-xl bg-slate-900 border border-slate-800 p-6 shadow-xl">
             <h2 class="text-base font-bold text-white mb-2 flex items-center gap-2">
-                Jogos no Sistema
+                Jogos no sistema
             </h2>
             <p class="text-xs text-slate-400 mb-4 leading-relaxed">
                 Inative jogos para ocultá-los do catálogo público mantendo o histórico de pedidos seguro.
@@ -94,7 +94,7 @@
                     <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-between gap-3 text-xs">
                         <div>
                             <span class="font-bold text-white block">{{ $game->name }}</span>
-                            <span class="text-[10px] {{ $game->active ? 'text-emerald-400 font-semibold' : 'text-slate-500' }}">
+                            <span class="text-xs {{ $game->active ? 'text-emerald-400 font-semibold' : 'text-slate-500' }}">
                                 {{ $game->active ? '● Ativo no Catálogo' : '○ Inativo' }}
                             </span>
                         </div>
@@ -102,7 +102,7 @@
                         <form action="{{ route('admin.games.status', $game) }}" method="POST">
                             @csrf
                             @method('PATCH')
-                            <button type="submit" class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition border
+                            <button type="submit" class="px-2.5 py-1 rounded-lg text-xs font-bold transition border
                                 {{ $game->active ? 'bg-slate-800 hover:bg-slate-700 text-amber-300 border-slate-700' : 'bg-emerald-950/80 hover:bg-emerald-900/80 text-emerald-300 border-emerald-800' }}">
                                 {{ $game->active ? 'Inativar' : 'Ativar' }}
                             </button>
@@ -148,14 +148,14 @@
     <div class="rounded-xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl">
         <div class="p-6 border-b border-slate-800 flex items-center justify-between">
             <h2 class="text-base font-bold text-white flex items-center gap-2">
-                Categorias Cadastradas
+                Categorias cadastradas
             </h2>
             <span class="text-xs text-slate-400 font-semibold">{{ $categories->total() }} categorias encontradas</span>
         </div>
 
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-                <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                <thead class="bg-slate-950 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
                     <tr>
                         <th class="py-3.5 px-6">Categoria</th>
                         <th class="py-3.5 px-6">Jogo</th>
@@ -170,15 +170,15 @@
                         <tr class="hover:bg-slate-800/40 transition">
                             <td class="py-4 px-6 font-bold text-white">
                                 {{ $category->name }}
-                                <span class="block text-[10px] text-slate-500 font-mono font-normal">{{ $category->slug }}</span>
+                                <span class="block text-xs text-slate-500 font-mono font-normal">{{ $category->slug }}</span>
                             </td>
                             <td class="py-4 px-6">
-                                <span class="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-slate-950 border border-slate-800 text-slate-300">
+                                <span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-950 border border-slate-800 text-slate-300">
                                     {{ $category->game?->name ?? 'Geral' }}
                                 </span>
                             </td>
                             <td class="py-4 px-6">
-                                <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold
+                                <span class="px-2 py-0.5 rounded text-xs uppercase font-bold
                                     {{ $category->type === 'cosmetic' ? 'bg-indigo-950 text-indigo-400 border border-indigo-800/40' : 'bg-emerald-950 text-emerald-400 border border-emerald-800/40' }}">
                                     {{ $category->type === 'cosmetic' ? 'Cosmético' : 'Serviço' }}
                                 </span>
@@ -187,7 +187,7 @@
                                 <span class="font-mono font-bold text-slate-200">{{ $category->listings_count }}</span>
                             </td>
                             <td class="py-4 px-6">
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold
                                     {{ $category->is_active ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/40' : 'bg-slate-800 text-slate-400' }}">
                                     <span class="w-1.5 h-1.5 rounded-full {{ $category->is_active ? 'bg-emerald-400' : 'bg-slate-500' }}"></span>
                                     {{ $category->is_active ? 'Ativa' : 'Inativa' }}
@@ -199,7 +199,7 @@
                                     <form action="{{ route('admin.categorias.status', $category) }}" method="POST" class="inline">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="px-2.5 py-1 rounded-lg text-[10px] font-semibold transition border
+                                        <button type="submit" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition border
                                             {{ $category->is_active ? 'bg-slate-800 hover:bg-slate-700 text-amber-300 border-slate-700' : 'bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border-emerald-800' }}"
                                             title="{{ $category->is_active ? 'Inativar categoria para novos anúncios' : 'Reativar categoria' }}">
                                             {{ $category->is_active ? 'Inativar' : 'Ativar' }}
@@ -207,16 +207,15 @@
                                     </form>
 
                                     <!-- Excluir (Protegido se houver anúncios vinculados) -->
-                                    <form action="{{ route('admin.categorias.destroy', $category) }}" method="POST" class="inline"
-                                          onsubmit="return confirm('Tem certeza que deseja excluir esta categoria?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="px-2.5 py-1 rounded-lg text-[10px] font-semibold text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/40 border border-rose-900/50 transition"
-                                                title="{{ $category->listings_count > 0 ? 'Possui anúncios: exclusão será bloqueada para proteger integridade' : 'Excluir categoria vazia' }}">
-                                            Excluir
-                                        </button>
-                                    </form>
+                                    <x-confirm-dialog
+                                        :action="route('admin.categorias.destroy', $category)"
+                                        title="Excluir esta categoria?"
+                                        :message="$category->listings_count > 0 ? 'Esta categoria tem anúncios vinculados, então a exclusão será bloqueada. Inative a categoria para escondê-la.' : 'A categoria será removida. Essa ação não pode ser desfeita.'"
+                                        confirm-label="Excluir"
+                                        trigger-class="px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/40 border border-rose-900/50 transition"
+                                        :trigger-title="$category->listings_count > 0 ? 'Possui anúncios: exclusão será bloqueada para proteger integridade' : 'Excluir categoria vazia'">
+                                        Excluir
+                                    </x-confirm-dialog>
                                 </div>
                             </td>
                         </tr>
