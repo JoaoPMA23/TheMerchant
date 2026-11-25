@@ -10,13 +10,13 @@
 
 ## 🗺️ Visão Geral do Projeto de Ponta a Ponta
 
-O desenvolvimento do **TheMerchant** foi organizado em **5 Milestones (Fases Cronológicas)** com um total de **25 Issues**, guiando a dupla desde o alinhamento da infraestrutura inicial até os testes ponta a ponta e a homologação final:
+O desenvolvimento do **TheMerchant** foi organizado em **5 Milestones (Fases Cronológicas)**. O plano inicial tinha **25 Issues** (#1 a #25). A auditoria de 18/09/2026 acrescentou **7 issues** (#27 a #33) para RF03, segurança dos diagnósticos, contrato de domínio, chat em tempo real (RF21 a RF23) e revisão do documento acadêmico, somando 32 issues:
 
 ```mermaid
 flowchart LR
     M1[M1: Fundação & Auth] --> M2[M2: Catálogo & Busca]
     M2 --> M3[M3: Carrinho & Checkout]
-    M3 --> M4[M4: Pós-Venda & Reputação]
+    M3 --> M4[M4: Pós-Venda, Reputação & Chat]
     M4 --> M5[M5: Admin, Testes & Release]
 ```
 
@@ -25,14 +25,23 @@ flowchart LR
 | Milestone | Etapa | Descrição e Foco | Requisitos |
 | :---: | :--- | :--- | :--- |
 | **M1** | **Fundação, Autenticação e Perfis** | Setup base do Laravel, banco, design system com Tailwind/Blade e controle de papéis (RBAC). | RF01, RF02, RF03, RF04, RNF01, RNF02, RNF03, RNF08 |
-| **M2** | **Catálogo, Anúncios e Mecanismo de Busca** | CRUD de jogos/categorias, cadastro de anúncios com galeria de fotos, vitrine Home e motor de busca com filtros. | RF05, RF06, RF07, RF08, RNF01, RNF05 |
+| **M2** | **Catálogo, Anúncios e Mecanismo de Busca** | CRUD de jogos/categorias, cadastro de anúncios com galeria de fotos, vitrine Home, motor de busca com filtros e contrato de disponibilidade (#29). | RF05, RF06, RF07, RF08, RNF01, RNF05 |
 | **M3** | **Carrinho, Checkout Transacional e Pagamentos** | Persistência do carrinho, UI dinâmica de itens, serviço atômico de checkout e gateway de pagamentos com webhooks. | RF09, RF10, RF11, RF12, RNF04, RNF06, RNF09 |
-| **M4** | **Pós-Venda, Entrega Digital e Reputação** | Painéis de pedidos e vendas, confirmação de entrega do item e motor dinâmico de avaliação com estrelas. | RF13, RF14, RF15, RNF01, RNF07 |
-| **M5** | **Painel Administrativo, Moderação e Qualidade** | Dashboard de KPIs, moderação de denúncias, testes automatizados e homologação final para apresentação. | RF16, RF17, RF18, RF19, RF20, RNF02, RNF03, RNF06, RNF08, RNF09 |
+| **M4** | **Pós-Venda, Entrega Digital, Reputação e Chat** | Painéis de pedidos e vendas, confirmação de entrega por item e por sessão, avaliação com estrelas e chat privado em tempo real (#30 a #32). | RF13, RF14, RF15, RF21, RF22, RF23, RNF01, RNF07 |
+| **M5** | **Painel Administrativo, Moderação e Qualidade** | Dashboard de KPIs, moderação de denúncias, testes automatizados, documento acadêmico (#33) e homologação final para apresentação. | RF16, RF17, RF18, RF19, RF20, RNF02, RNF03, RNF06, RNF08, RNF09 |
+
+### Estado das issues em 25/11/2026
+
+| Situação | Issues |
+| :--- | :--- |
+| Fechadas | #1 a #15, #17 a #20, #22 a #24, #27 a #32 |
+| Abertas | #16 (pagamento: concorrência em PostgreSQL, webhook fora de ordem com eventos reais e Render), #21 (validação ponta a ponta já registrada), #25 (revisão final e apresentação), #33 (documento acadêmico e diagramas) |
+
+Issue fechada não substitui evidência. A ligação de cada requisito com issue, critério de aceite e evidência está em [docs/RASTREABILIDADE.md](docs/RASTREABILIDADE.md).
 
 ---
 
-## 👥 Resumo da Distribuição das 25 Tarefas
+## 👥 Resumo da Distribuição das 25 Tarefas Iniciais
 
 | Tipo de Atribuição | Quantidade | Descrição do Escopo |
 | :--- | :---: | :--- |
@@ -196,11 +205,12 @@ flowchart LR
 - **Milestone:** `M3: Carrinho, Checkout Transacional e Pagamentos`
 - **Labels:** `backend`, `payment`, `testing`
 - **Requisitos:** `RF10`, `RF11`, `RF12`, `RNF06`
-- **Resumo:** Homologação conjunta em ambiente sandbox da jornada completa de pagamento: emissão de preferência, simulação de retorno do gateway, conferência da mudança para status `pago` e validação do retry idempotente do webhook.
+- **Resumo:** Homologação conjunta em ambiente sandbox da jornada completa de pagamento: emissão do PIX na AbacatePay, confirmação por webhook real ou simulação do modo dev, conferência da mudança para status `pago` e validação do retry idempotente do webhook.
+- **Situação:** `ABERTA`. Homologação local registrada em 12/11/2026 (webhook real, HMAC, idempotência, recusa, gateway indisponível e expiração). Faltam compra concorrente em PostgreSQL, webhook fora de ordem com eventos do provedor e repetição no Render.
 
 ---
 
-## 🎯 Milestone 4: Pós-Venda, Entrega Digital e Reputação
+## 🎯 Milestone 4: Pós-Venda, Entrega Digital, Reputação e Chat
 
 ### Issue #17: `[Feature/Orders] Painel de Acompanhamento de Pedidos e Histórico Cronológico do Comprador`
 - **Assignee:** `@IgorMarcoli`
@@ -243,7 +253,8 @@ flowchart LR
 - **Milestone:** `M4: Pós-Venda, Entrega Digital e Reputação`
 - **Labels:** `testing`, `feature`
 - **Requisitos:** `RF13`, `RF14`, `RF15`
-- **Resumo:** Simulação ponta a ponta com duas contas: Igor como Vendedor anunciando um cosmético, João como Comprador realizando o checkout, envio simulado de pagamento, marcação de entrega e submissão da avaliação com atualização da reputação pública.
+- **Resumo:** Validação ponta a ponta com comprador e dois vendedores: skin e coaching no mesmo pedido, PIX gerado na AbacatePay (sandbox) e confirmado pelo modo dev, entrega por item e por sessão, avaliação por item e chat antes e depois da compra.
+- **Situação:** `ABERTA`. Roteiro executado e registrado em 24/11/2026.
 
 ---
 
@@ -280,5 +291,20 @@ flowchart LR
 - **Assignees:** `@JoaoPMA23`, `@IgorMarcoli` *(Trabalho em Dupla)*
 - **Milestone:** `M5: Painel Administrativo, Moderação e Qualidade`
 - **Labels:** `qa`, `ui/ux`, `feature`
-- **Requisitos:** `RNF01`, `RNF08`
-- **Resumo:** Homologação geral do projeto com dados realistas (`DatabaseSeeder`), verificação da documentação e preparação do roteiro de apresentação demonstrando todos os fluxos exigidos na disciplina LES III.
+- **Requisitos:** `RF21`, `RF22`, `RF23`, `RNF01`, `RNF08`
+- **Resumo:** Homologação geral do projeto com dados realistas (`DatabaseSeeder` e `DemoCatalogSeeder`), verificação da documentação e preparação do roteiro de apresentação demonstrando todos os fluxos exigidos na disciplina LES III.
+- **Situação:** `ABERTA`. Roteiro em [docs/ROTEIRO_APRESENTACAO.md](docs/ROTEIRO_APRESENTACAO.md); falta executar e registrar a evidência.
+
+---
+
+# ➕ Issues Acrescentadas na Auditoria de 18/09/2026
+
+| Issue | Milestone | Requisitos | Entrega | Situação |
+| :--- | :--- | :--- | :--- | :--- |
+| #27 `[Auth/RF03]` Verificação de e-mail e recuperação de acesso | M1 | RF03, RNF02, RNF03, RNF08 | Link assinado, token de uso único, envio em fila ([AUTENTICACAO.md](docs/AUTENTICACAO.md)) | Fechada |
+| #28 `[Security]` Restringir diagnósticos e dados internos | M1 | RNF03, RNF07, RNF09 | Diagnósticos HTTP removidos; `test:db` só por CLI e sanitizado | Fechada |
+| #29 `[Domain/Contrato]` Disponibilidade, sessões e conclusão por item | M2 | RF05, RF06, RF09, RF10, RF14, RF15, RNF06 | [CONTRATO_DOMINIO.md](docs/CONTRATO_DOMINIO.md), exemplos D01 a D14 | Fechada |
+| #30 `[Chat/Backend]` Conversas, persistência e tempo real | M4 | RF21, RF22, RF23 | `ChatService`, `ConversationPolicy`, Reverb, `MessageSent` após commit | Fechada |
+| #31 `[Chat/UI]` Falar com vendedor, caixa de entrada e não lidas | M4 | RF21, RF22, RF23, RNF01, RNF07 | Acesso pelo anúncio, pedido e venda; contador na navegação | Fechada |
+| #32 `[Chat/QA]` Isolamento, reconexão e tempo real | M4 | RF21, RF22, RF23 | `ChatRegressionTest` e teste com Reverb e worker reais (24/11/2026) | Fechada |
+| #33 `[Docs/UML]` Documento acadêmico, diagramas e rastreabilidade | M5 | RF01 a RF23, RNF08 | Documentação sincronizada, matriz de rastreabilidade e texto do `.docx`; figuras a reexportar | Aberta |

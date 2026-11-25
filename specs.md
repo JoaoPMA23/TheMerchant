@@ -2,7 +2,8 @@
 
 > **Documento de Arquitetura de Software e Especificação Técnica**  
 > **Projeto:** TheMerchant (Marketplace de Cosméticos e Serviços para Jogos Digitais)  
-> **Stack:** PHP 8.2+, Laravel 11/12, Blade, Tailwind CSS, Alpine.js, PostgreSQL / MySQL  
+> **Stack:** PHP 8.2+, Laravel 12, Blade, Tailwind CSS, Alpine.js, PostgreSQL (Supabase), Laravel Reverb + Echo  
+> **Situação:** implementado x pendente por requisito em [docs/RASTREABILIDADE.md](docs/RASTREABILIDADE.md)  
 
 ---
 
@@ -22,14 +23,23 @@ O **TheMerchant** segue o padrão de **Monólito Modular em Camadas**, tirando p
        │
        ▼
 [ Camada de Serviços (app/Services) ] ──> [ Policies (app/Policies) ]
-   ├── CheckoutService
-   └── PaymentGatewayService
+   ├── CheckoutService / ReservationService
+   ├── PaymentGatewayService (+ Payments/AbacatePayGateway)
+   ├── SaleDeliveryService / ReviewService
+   ├── ChatService
+   └── ReportModerationService / SellerAccountService / CatalogService
        │
-       ├──────────────────────────────┬──────────────────────────────┐
-       ▼                              ▼                              ▼
-[ Eloquent Models & DB ]      [ Jobs & Queues ]             [ Gateway Externo ]
-(PostgreSQL / MySQL)          (Webhooks / E-mails)          (AbacatePay PIX)
+       ├──────────────────────────┬──────────────────────────────┬──────────────────────────┐
+       ▼                          ▼                              ▼                          ▼
+[ Eloquent Models & DB ]  [ Fila + worker ]              [ Gateway Externo ]         [ Scheduler ]
+(PostgreSQL / Supabase)   (webhooks, estornos,           (AbacatePay PIX, API v2,    (payments:reconcile
+                           e-mails, MessageSent)          sandbox na apresentação)    a cada minuto)
+                                  │
+                                  ▼
+                          [ Laravel Reverb ] ──canal privado chat.{id}, só ids──> [ Navegador (Echo) ]
 ```
+
+Não há carteira própria nem custódia de valores: todo pagamento e estorno passa pelo gateway externo. O texto das mensagens do chat sempre chega pelo HTTP autorizado; o WebSocket leva apenas o aviso.
 
 ---
 
@@ -103,6 +113,11 @@ Armazena as publicações de cosméticos e serviços feitas pelos vendedores.
 | `price` | `DECIMAL(10,2)` | Não | Valor em reais (mínimo R$ 1,00) |
 | `status` | `ENUM('rascunho', 'publicado', 'pausado', 'vendido', 'bloqueado')` | Não | Estado atual do anúncio |
 | `views_count` | `INT UNSIGNED` | Não | Contador de visualizações (default: 0) |
+| `capacity` | `INT UNSIGNED` | Não | Saldo ainda não consumido: 1 para cosmético; sessões disponíveis para coaching |
+| `session_duration_minutes` | `SMALLINT UNSIGNED` | Sim | Duração de cada sessão de coaching |
+| `delivery_conditions` | `TEXT` | Sim | Condições de entrega exibidas ao comprador |
+| `timezone` | `VARCHAR(64)` | Sim | Fuso do coaching (ex.: `America/Sao_Paulo`) |
+| `archived_at` | `TIMESTAMP` | Sim | Arquivamento que tira o anúncio da vitrine sem apagar histórico |
 | `created_at` / `updated_at` | `TIMESTAMP` | Sim | Timestamps do Eloquent |
 
 ### 2.6 Tabela `listing_images`
@@ -142,8 +157,11 @@ Registro de pedidos com preços e condições comerciais preservados; estados de
 -- orders
 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 order_number VARCHAR(32) NOT NULL UNIQUE,
+checkout_key VARCHAR(64) NULL, -- UNIQUE(buyer_id, checkout_key): reenvio devolve o mesmo pedido
 buyer_id BIGINT UNSIGNED NOT NULL (FK users.id),
 total_amount DECIMAL(10,2) NOT NULL,
+currency CHAR(3) NOT NULL DEFAULT 'BRL',
+reservation_expires_at TIMESTAMP NULL,
 status ENUM('pendente', 'pago', 'em_andamento', 'concluido', 'cancelado') NOT NULL DEFAULT 'pendente',
 notes TEXT NULL,
 created_at, updated_at TIMESTAMP
@@ -155,16 +173,21 @@ listing_id BIGINT UNSIGNED NOT NULL (FK listings.id),
 seller_id BIGINT UNSIGNED NOT NULL (FK users.id),
 unit_price DECIMAL(10,2) NOT NULL, -- Preço congelado no ato da compra
 quantity INT UNSIGNED NOT NULL DEFAULT 1,
+-- snapshot: listing_title, listing_description, listing_type, game_id/game_name,
+-- category_id/category_name, currency, session_duration_minutes, delivery_instructions,
+-- delivery_conditions, scheduling_mode, timezone, scheduled_at
 delivery_status ENUM('aguardando_pagamento', 'em_entrega', 'entregue') NOT NULL DEFAULT 'aguardando_pagamento',
 delivered_at TIMESTAMP NULL,
 created_at, updated_at TIMESTAMP
 ```
 
-### 2.8.1 Disponibilidade e reservas — contrato definido (#29), implementação por #5/#13/#14
+### 2.8.1 Disponibilidade e reservas (contrato #29, implementado em #5, #13 e #14)
 
-Contrato normativo, exemplos D01–D14 e rastreabilidade: [Contrato de domínio v1](docs/CONTRATO_DOMINIO.md). A definição não comprova implementação funcional. O dicionário acima descreve a base inicial. Acrescentar `capacity` para sessões disponíveis de serviço e `session_duration_minutes`, com restrições positivas; cosmético único possui capacidade 1. Snapshot de tipo, duração e instruções por item do pedido. Serviço admite múltiplas compras até consumir sua capacidade.
+Contrato normativo e exemplos D01 a D14: [Contrato de domínio v1](docs/CONTRATO_DOMINIO.md). Os exemplos são cobertos por `CheckoutReservationTest`, `OrderTest` e `ReviewTest`. `capacity` e `session_duration_minutes` estão em `listings`; cosmético único possui capacidade 1. O snapshot de tipo, duração e instruções fica em cada item do pedido. Serviço admite múltiplas compras até consumir sua capacidade.
 
-Tabela `reservations` (implementada em #13): `id`, `listing_id`, `order_item_id` único, `quantity`, `expires_at`, `status` (active/confirmed/released), `released_reason`, timestamps. Reservas ativas reduzem disponibilidade e são adquiridas sob lock; aprovação reduz capacidade e confirma reserva uma única vez. Expiração libera apenas reserva ainda ativa. Suspensão/pausa não pode apagar reservas ou histórico.
+Tabela `reservations` (implementada em #13 e #14): `id`, `listing_id`, `order_item_id` único, `quantity`, `expires_at`, `status` (active/confirmed/released), `released_reason`, timestamps. Reservas ativas reduzem disponibilidade e são adquiridas sob lock; aprovação reduz capacidade e confirma reserva uma única vez. Expiração libera apenas reserva ainda ativa. Suspensão/pausa não pode apagar reservas ou histórico. A disputa real entre duas conexões depende do `lockForUpdate` no PostgreSQL e ainda não tem evidência (pendência da #16).
+
+Tabela `order_item_deliveries` (#18): `order_item_id`, `delivery_number` (UNIQUE por item), `recorded_by`, `delivered_at`. Cada sessão de coaching gera um registro; o item só fica `entregue` quando todas as sessões contratadas forem registradas.
 
 ### 2.9 Tabela `payments`
 Registro de auditoria e status retornado pelo gateway de pagamento.
@@ -184,8 +207,10 @@ Registro de auditoria e status retornado pelo gateway de pagamento.
 | `expires_at` / `paid_at` | `TIMESTAMP` | Sim | Vencimento do PIX e confirmação verificada |
 | `refund_status` / `refund_id` / `refund_attempts` / `last_error` | | Sim | Estorno de pagamento tardio |
 
-Eventos de webhook ficam em `payment_events` (`event_id` único, payload sanitizado, `result`, `processed_at`). Estados e transições: [docs/PAGAMENTOS.md](docs/PAGAMENTOS.md).
+| `dev_mode` | `BOOLEAN` | Não | Cobrança criada com chave de desenvolvimento (sandbox) |
 | `created_at` / `updated_at` | `TIMESTAMP` | Sim | Timestamps do Eloquent |
+
+Eventos de webhook ficam em `payment_events` (`gateway`, `event_id` único, `event_type`, `charge_id`, payload sanitizado, `result`, `processed_at`). Estados e transições: [docs/PAGAMENTOS.md](docs/PAGAMENTOS.md).
 
 ### 2.10 Tabela `reviews`
 Avaliações concedidas exclusivamente após pedido entregue.
@@ -216,6 +241,12 @@ Canal de denúncias para supervisão e moderação administrativa.
 | `resolution_notes` | `TEXT` | Sim | Parecer da moderação |
 | `created_at` / `updated_at` | `TIMESTAMP` | Sim | Timestamps do Eloquent |
 
+### 2.12 Tabela `moderation_audits`
+Histórico das decisões administrativas (#23, #24): `report_id`, `moderator_id` e `listing_id` opcionais, `action`, estados anterior e novo da denúncia e do anúncio e `resolution_notes` obrigatório. Bloqueio e restauração de anúncio sempre geram um registro.
+
+### 2.13 Tabelas `conversations` e `messages`
+Descritas na seção 6. Tabelas técnicas do Laravel (`sessions`, `cache`, `jobs`, `failed_jobs`, `password_reset_tokens`, `migrations`) apoiam a operação e não fazem parte do modelo de negócio.
+
 ---
 
 ## 3. Camada de Serviços (*Service Layer*)
@@ -224,20 +255,23 @@ Para cumprir o requisito não funcional **RNF08** de organização em camadas e 
 
 ### 3.1 `CheckoutService`
 Responsável pelo fluxo transacional de criação do pedido a partir do carrinho:
-1. Validar preço, elegibilidade e quantidade (cosmético único = 1; serviço = sessões/capacidade).
-2. Em `DB::transaction()`, bloquear registros de disponibilidade, reservar com expiração e criar pedido `pendente`.
+Entrada: `checkout(User $user, string $checkoutKey, ?string $notes, array $itemInstructions): Order`.
+1. Validar preço, elegibilidade e quantidade (cosmético único = 1; serviço = sessões/capacidade). Preço alterado atualiza o carrinho e pede revisão.
+2. Em `DB::transaction()`, bloquear anúncios por id crescente (`lockForUpdate`), liberar reservas vencidas, reservar por 15 minutos e criar pedido `pendente`.
 3. Congelar preço, quantidade, tipo, duração e condições em `order_items`; limpar carrinho.
-4. Após commit, criar preferência no gateway com chave idempotente; persistir identificador e reconciliar falhas sem manter transação de banco aberta durante a chamada externa.
+4. Após o commit, `PaymentGatewayService::startPayment` cria a cobrança PIX com `externalId` idempotente, fora da transação. Falha transitória mantém a reserva e permite "Gerar PIX novamente" (`retryPayment`).
 5. Aprovação confirmada pelo provedor consome reserva: cosmético fica `vendido`; serviço mantém anúncio disponível se houver capacidade.
-6. Recusa/cancelamento/expiração liberam reserva idempotentemente; pagamento tardio exige reconciliação/estorno no provedor sem dupla venda.
-7. Executar job agendado de expiração e testes de concorrência/retry. Definir TTL configurável alinhado à preferência do provedor.
+6. Recusa, cancelamento e expiração liberam a reserva de forma idempotente (`ReservationService`); pagamento tardio é estornado no provedor sem dupla venda.
+7. `payments:reconcile`, agendado a cada minuto, expira pedidos vencidos, consulta cobranças pendentes e repete estornos que falharam.
 
 ### 3.2 `PaymentGatewayService`
-Responsável por encapsular chamadas de API externas:
-1. `createPaymentPreference(Order $order): array` — Monta os dados do pedido e gera a URL de checkout no gateway;
-2. `handleWebhookNotification(array $payload, string $signature): bool` — Valida a assinatura de segurança da notificação;
-3. `verifyTransaction(string $transactionId): PaymentResult` — Consulta a API do provedor em busca do status final da transação;
-4. `recordPayment(Order $order, string $transactionId, string $status, array $rawPayload): Payment` — Registra a tentativa garantindo unicidade pela `idempotency_key`.
+Encapsula o provedor por meio da interface `App\Services\Payments\PaymentGateway` (implementação `AbacatePayGateway`):
+1. `startPayment(Order $order): Payment`: cria a cobrança PIX com `idempotency_key = abacatepay:<nº do pedido>`.
+2. `handleEvent(PaymentEvent $event): string`: processa um webhook já autenticado (segredo + HMAC no `WebhookController`), sempre consultando o provedor.
+3. `syncPayment(Payment $payment): string`: consulta o provedor (botão "Já paguei" e reconciliação).
+4. `simulatePayment(Payment $payment): string`: pede ao provedor a simulação do pagamento, só com `ABACATEPAY_DEV_MODE=true`.
+5. `applyCharge(Payment $payment, GatewayCharge $charge): string`: aplica o estado sob lock, sem regredir pagamento confirmado.
+6. `refundLatePayment(Payment $payment): void`: solicita estorno idempotente de pagamento tardio.
 
 ---
 
@@ -254,13 +288,15 @@ sequenceDiagram
     participant DB as Banco de Dados
 
     Buyer->>App: Finaliza Checkout
-    App->>Gateway: Cria preferência de pagamento
-    Gateway-->>Buyer: Exibe tela segura para pagamento (PIX / Cartão)
+    App->>Gateway: Cria cobrança PIX (fora da transação)
+    App-->>Buyer: Página do pedido com QR Code e PIX copia e cola
     Buyer->>Gateway: Realiza o pagamento
-    Gateway->>WebhookCtrl: POST /api/webhooks/payment (com transaction_id e status)
-    WebhookCtrl->>WebhookCtrl: Valida assinatura HMAC do Gateway
+    Gateway->>WebhookCtrl: POST /api/webhooks/payment?webhookSecret=… + X-Webhook-Signature
+    WebhookCtrl->>WebhookCtrl: Valida segredo e HMAC do corpo bruto
+    WebhookCtrl->>DB: Grava evento em payment_events (event_id único)
     WebhookCtrl->>Queue: Despacha ProcessPaymentWebhookJob
     WebhookCtrl-->>Gateway: HTTP 200 OK imediato
+    Queue->>Gateway: GET /transparents/check (estado autoritativo)
 
     Queue->>DB: Deduplica evento e bloqueia transação/pedido
     alt Mesmo evento já processado
@@ -287,13 +323,13 @@ sequenceDiagram
    - `OrderPolicy`: Garante que um comprador visualize apenas seus próprios pedidos, e que um vendedor visualize apenas os itens de pedidos destinados a ele.
    - `ReviewPolicy`: Garante que apenas o comprador do item pago e entregue possa avaliá-lo, uma vez por `order_item_id`, sem depender de itens de outros vendedores.
 
-## 6. Chat privado em tempo real — RF21–RF23 (planejado)
+## 6. Chat privado em tempo real (RF21 a RF23, implementado)
 
-Revisão solicitada em 18/09/2026, issues #30 (backend), #31 (UI) e #32 (QA). O PDF original excluía chat; a revisão passa a incluir texto privado, histórico e não lidas na v1. Não implica que o módulo já esteja implementado.
+Revisão de escopo solicitada pelo professor responsável em 18/09/2026, issues #30 (backend), #31 (UI) e #32 (QA), todas fechadas. O PDF original excluía chat; a revisão inclui texto privado, histórico e não lidas na v1. Validado com Reverb e worker reais em ambiente local em 24/11/2026 (#32). O Reverb no Render ainda não foi validado. Operação e variáveis em [docs/CHAT_TEMPO_REAL.md](docs/CHAT_TEMPO_REAL.md).
 
 ### Persistência e autorização
 
-A estrutura das tabelas está versionada em `2026_09_24_000001_create_chat_tables`; isso não implementa o módulo de chat. Para bancos que misturam o protótipo em português e o modelo Laravel, consulte [a consolidação do schema](docs/CONSOLIDACAO_SCHEMA.md).
+A estrutura das tabelas está versionada em `2026_09_24_000001_create_chat_tables`. Para bancos que misturam o protótipo em português e o modelo Laravel, consulte [a consolidação do schema](docs/CONSOLIDACAO_SCHEMA.md).
 
 - `conversations`: id, buyer_id (usuário interessado), seller_id, listing_id, buyer_last_read_message_id e seller_last_read_message_id opcionais, timestamps. UNIQUE(buyer_id, seller_id, listing_id). Impedir participantes iguais.
 - `messages`: id, conversation_id, sender_id, client_uuid, body (texto de 1–2000 caracteres), timestamps. UNIQUE(conversation_id, sender_id, client_uuid); índice (conversation_id, id).
@@ -304,7 +340,7 @@ A estrutura das tabelas está versionada em `2026_09_24_000001_create_chat_table
 
 ### Transporte e interface
 
-Usar Laravel Broadcasting + Reverb e Laravel Echo, em versões compatíveis com o Laravel adotado. [Documentação oficial de Broadcasting](https://laravel.com/docs/11.x/broadcasting) e [Reverb](https://laravel.com/docs/11.x/reverb).
+Laravel Broadcasting + Reverb no servidor e Laravel Echo 2.1.6 com pusher-js 8.4.0 no navegador. [Documentação oficial de Broadcasting](https://laravel.com/docs/12.x/broadcasting) e [Reverb](https://laravel.com/docs/12.x/reverb).
 
 Persistir mensagem e transmitir evento enfileirado após commit em canal privado autorizado. UI Blade/Tailwind/Alpine envia por HTTP autenticado com CSRF, recebe via Echo e reconcilia mensagens por ID/UUID. Reconexão consulta histórico incremental, recuperando mensagens perdidas. Limitação de envios, saída escapada, estados de erro/retry e contador de não lidas são obrigatórios.
 
@@ -330,8 +366,11 @@ sequenceDiagram
 
 ## 7. Rastreabilidade e pendências do documento acadêmico
 
-- #27 completa RF03; #28 trata exposição de diagnósticos antes de qualquer publicação.
-- #7/#8 incluem reputação; #23 inclui restauração de anúncio pelo administrador.
-- #29 define cosmético único, sessões/capacidade e conclusão por item. Avaliação única por `order_item_id` entregue/pago via ReviewService e Policy, sem aguardar outros vendedores.
-- #33 atualiza PDF e diagramas: associações visíveis, catálogo público para visitante, chat para comprador/vendedor e ERD com novas entidades.
-- #25 depende das entregas e evidências de testes de todas as milestones, inclusive #32. O PDF original permanece referência histórica até sua revisão.
+A matriz completa RF/RNF → issue → critério → evidência está em [docs/RASTREABILIDADE.md](docs/RASTREABILIDADE.md).
+
+- #27 entregou RF03 (envio real pelo Resend registrado na #25); #28 removeu os diagnósticos HTTP.
+- #7/#8 entregaram filtro por nota mínima e ordenação por reputação; #23/#24 entregaram a restauração de anúncio bloqueado pelo administrador.
+- #29 definiu cosmético único, sessões/capacidade e conclusão por item; #13, #14 e #18 implementaram. Avaliação única por `order_item_id` entregue/pago via ReviewService e Policy, sem aguardar outros vendedores.
+- #16 homologou a AbacatePay em sandbox em 12/11/2026. Pendentes: compra concorrente em PostgreSQL, webhook fora de ordem com eventos reais e repetição no Render.
+- #33 atualiza o documento acadêmico e os diagramas: associações visíveis, catálogo público para visitante, chat para comprador e vendedor, arquitetura com Reverb, Echo e filas, e MER com conversas, mensagens, cursores de leitura e reservas. O texto do `.docx` em `docs/entrega/` foi atualizado; as figuras ainda precisam ser reexportadas.
+- #25 depende das evidências de todas as milestones e do [roteiro de apresentação](docs/ROTEIRO_APRESENTACAO.md). O PDF original permanece referência histórica.

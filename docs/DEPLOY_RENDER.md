@@ -2,6 +2,8 @@
 
 Este guia orienta a publicação do **TheMerchant** como **Web Service** no [Render.com](https://render.com).
 
+> **Situação em 25/11/2026:** o deploy em `https://themerchant-p2be.onrender.com` está respondendo **HTTP 500**, e a causa ainda não foi investigada. Por isso o fluxo de pagamento com webhook no domínio público e o Reverb como segundo serviço ainda não foram validados no Render (pendências da [#16](https://github.com/IgorMarcoli/TheMerchant/issues/16) e da [#32](https://github.com/IgorMarcoli/TheMerchant/issues/32)). As homologações registradas foram feitas em ambiente local. O banco principal do projeto é PostgreSQL no Supabase ([SUPABASE.md](SUPABASE.md)); a seção 3 abaixo é uma alternativa.
+
 ---
 
 ## 1. Como Criar o Web Service no Render

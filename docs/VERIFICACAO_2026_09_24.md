@@ -1,5 +1,7 @@
 # Verificação de integração — 24/09/2026
 
+> Registro histórico. O estado atual de cada requisito está em [RASTREABILIDADE.md](RASTREABILIDADE.md).
+
 Base incorporada: `acd5768`, da main original. Entrega publicada na branch `João` do original e na `main` do fork, sem criar branches com nomes de IA.
 
 ## Evidências locais

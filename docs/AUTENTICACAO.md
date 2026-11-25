@@ -89,3 +89,11 @@ o payload criptografado e o descarte de notificações obsoletas.
 Para validar a publicação, cadastrar uma conta de teste, consumir o link recebido,
 sair, recuperar a senha, testar o login com a nova senha e a recusa do mesmo token
 pela segunda vez. Essa etapa depende do SMTP e do worker do ambiente.
+
+### Envio real registrado (12/11/2026)
+
+O SMTP do Resend (`smtp.resend.com`, porta 465, esquema `smtps`, usuário `resend`, senha = chave da API guardada só no `.env`) aceitou um `Mail::raw` e a `VerifyEmailNotification` real, enviada para `delivered@resend.dev`. Evidência no [comentário da #25](https://github.com/IgorMarcoli/TheMerchant/issues/25). Cuidados:
+
+- Sem domínio verificado, o remetente `onboarding@resend.dev` só entrega para o e-mail da conta do Resend. Na demonstração, cadastre o usuário com esse e-mail ou verifique um domínio e troque `MAIL_FROM_ADDRESS`.
+- Deixe um único bloco `MAIL_` no `.env`.
+- Com fila `sync`, uma chave inválida faz o cadastro falhar no envio da verificação. Confira a chave antes de apresentar.

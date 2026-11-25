@@ -24,7 +24,7 @@ Projeto acadêmico de Laboratório de Engenharia de Software III · FATEC Praia 
   <img src="https://img.shields.io/badge/Blade-FF2D20?style=flat-square&amp;logo=laravel&amp;logoColor=white" alt="Blade">
   <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&amp;logo=tailwindcss&amp;logoColor=white" alt="Tailwind CSS">
   <img src="https://img.shields.io/badge/Alpine.js-8BC0D0?style=flat-square&amp;logo=alpinedotjs&amp;logoColor=black" alt="Alpine.js">
-  <img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&amp;logo=mysql&amp;logoColor=white" alt="MySQL">
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&amp;logo=postgresql&amp;logoColor=white" alt="PostgreSQL">
   <img src="https://img.shields.io/badge/Composer-885630?style=flat-square&amp;logo=composer&amp;logoColor=white" alt="Composer">
   <img src="https://img.shields.io/badge/Git-F05032?style=flat-square&amp;logo=git&amp;logoColor=white" alt="Git">
 </p>
@@ -43,11 +43,11 @@ Projeto acadêmico de Laboratório de Engenharia de Software III · FATEC Praia 
 
 ---
 
-> **Projeto em construção:** pagamento atualmente simulado. As seções abaixo apresentam o escopo e a arquitetura; o [guia de testes](docs/TESTES.md) registra o que foi efetivamente validado.
+> **Situação em 25/11/2026:** o pagamento usa a AbacatePay (PIX, API v2) em **modo de desenvolvimento (sandbox)**, sem dinheiro real. Cobrança no provedor, webhook real com assinatura HMAC e idempotência foram homologados localmente em 12/11/2026 ([#16](https://github.com/IgorMarcoli/TheMerchant/issues/16)). Ainda faltam a compra concorrente em PostgreSQL, o webhook fora de ordem com eventos reais e a repetição do fluxo no deploy do Render, que hoje responde HTTP 500. A [matriz de rastreabilidade](docs/RASTREABILIDADE.md) separa o que está implementado do que está pendente.
 
-| 🚀 Executar localmente | 🧪 Validar a aplicação | 📌 Acompanhar entregas |
-| :---: | :---: | :---: |
-| [Guia de instalação e execução](docs/EXECUCAO.md) | [Guia de testes e validações](docs/TESTES.md) | [Issues e milestones](ISSUES.md) |
+| 🚀 Executar localmente | 🧪 Validar a aplicação | 📌 Acompanhar entregas | 🎤 Apresentar |
+| :---: | :---: | :---: | :---: |
+| [Guia de instalação e execução](docs/EXECUCAO.md) | [Guia de testes](docs/TESTES.md) e [rastreabilidade](docs/RASTREABILIDADE.md) | [Issues e milestones](ISSUES.md) | [Roteiro de apresentação](docs/ROTEIRO_APRESENTACAO.md) |
 
 ---
 
@@ -94,6 +94,7 @@ Desenvolver uma plataforma web de marketplace que permita anunciar, pesquisar, c
 - 📈 Permitir o acompanhamento completo do status de pedidos (comprador) e vendas (vendedor).
 - ⭐ Implementar avaliação e reputação de vendedores somente após uma compra efetivamente concluída.
 - 🛡️ Disponibilizar painel administrativo para moderação de denúncias, anúncios, categorias e usuários.
+- 💬 Permitir conversa privada de texto em tempo real entre interessado e vendedor, antes e depois da compra (ampliação de escopo de 18/09/2026).
 - 🏛️ Construir a solução sobre uma arquitetura organizada, modular e de fácil manutenção utilizando PHP 8.2+ e o ecossistema Laravel.
 
 ---
@@ -146,7 +147,7 @@ Uma pessoa usa a mesma conta para comprar e vender. `seller_profiles.status` con
 
 ### Chat em tempo real — ampliação de escopo
 
-Incluído na v1 em 18/09/2026. Backend e tempo real entregues na #30 ([guia do chat](docs/CHAT_TEMPO_REAL.md)); interface e regressão nas #31–#32; atualização do PDF na #33.
+Incluído na v1 em 18/09/2026, como revisão de escopo solicitada pelo professor responsável. Backend e tempo real entregues na #30 ([guia do chat](docs/CHAT_TEMPO_REAL.md)); interface e regressão nas #31 e #32, com teste usando Reverb e worker reais em 24/11/2026; atualização do documento acadêmico na #33. Critérios de aceite completos em [requirements.md](requirements.md).
 
 | ID | Prioridade | Descrição |
 | :--- | :---: | :--- |
@@ -178,7 +179,7 @@ Incluído na v1 em 18/09/2026. Backend e tempo real entregues na #30 ([guia do c
 | ✅ Catálogo, carrinho, checkout e webhook assíncrono | ❌ Integração direta com APIs oficiais de jogos (Steam, Riot) |
 | ✅ Reputação pós-compra e chat privado de texto com vendedor | ❌ Anexos, áudio/vídeo e grupos no chat |
 | ✅ Painel administrativo de moderação e denúncias | ❌ Múltiplos idiomas e múltiplas moedas (foco BRL) |
-| ✅ Gateway externo (AbacatePay — PIX) | ❌ Carteira financeira própria ou custódia interna de valores |
+| ✅ Gateway externo (AbacatePay, PIX, em sandbox na apresentação) | ❌ Carteira financeira própria ou custódia interna de valores |
 | ✅ Coaching com sessões, capacidade e combinação de horários | ❌ Agenda automática de coaching |
 
 ---
@@ -193,15 +194,15 @@ Incluído na v1 em 18/09/2026. Backend e tempo real entregues na #30 ([guia do c
 | :--- | :--- | :--- |
 | **Linguagem & Back-end** | **PHP 8.2+ / Laravel 12** | Monólito modular baseado no padrão MVC do Laravel. |
 | **Camada de Apresentação** | **Blade + Tailwind CSS + Alpine.js** | Renderização server-side rápida, estilização moderna e componentes interativos leves. |
-| **Banco de Dados** | **MySQL / PostgreSQL previsto** | Migrations e Eloquent; os diagnósticos atuais usam SQL específico de MySQL. |
+| **Banco de Dados** | **PostgreSQL (Supabase)** | Migrations e Eloquent no schema `laravel`. SQLite em memória nos testes e SQLite local nas homologações registradas; a migration de adoção do chat não suporta MySQL. |
 | **Autenticação & Autorização** | **Laravel Sessions & Policies** | Sessões seguras com cookies HTTP-only, CSRF e Laravel Policies/Gates. |
-| **Integração de Pagamentos** | **AbacatePay (PIX, API v2)** | Camada de serviço desacoplada (`PaymentGatewayService` + `PaymentGateway`) com webhooks autenticados, reservas com expiração e idempotência. Detalhes em [docs/PAGAMENTOS.md](docs/PAGAMENTOS.md). |
+| **Integração de Pagamentos** | **AbacatePay (PIX, API v2)** | Camada de serviço desacoplada (`PaymentGatewayService` + `PaymentGateway`) com webhooks autenticados (segredo + HMAC), reservas com expiração, reconciliação e idempotência. Usada em modo de desenvolvimento (sandbox). Detalhes em [docs/PAGAMENTOS.md](docs/PAGAMENTOS.md). |
 | **Armazenamento de Arquivos** | **Laravel Storage (Disk Local / S3)** | Armazenamento de imagens de anúncios e perfis com links simbólicos públicos. |
-| **Filas & Tarefas Assíncronas** | **Laravel Queues / Jobs** | Processamento em segundo plano para envio de e-mails, confirmação de webhooks e logs de auditoria. |
-| **Testes Automatizados** | **Pest / PHPUnit** | Cobertura de testes unitários para Services e testes de feature para fluxos HTTP críticos. |
+| **Filas & Tarefas Assíncronas** | **Laravel Queues / Jobs + Scheduler** | Worker (`queue:work`) para e-mails, processamento de webhooks (`ProcessPaymentWebhookJob`), estornos de pagamento tardio (`RefundLatePaymentJob`) e avisos do chat (`MessageSent`). O scheduler roda `payments:reconcile` a cada minuto. |
+| **Testes Automatizados** | **Pest / PHPUnit + Node test runner** | Testes de feature e unidade em SQLite em memória, testes JavaScript em `tests/js` e CI no GitHub Actions. |
 | **Versionamento** | **Git + GitHub** | Branches, revisão de código e acompanhamento de entregas. |
 | **Chat em tempo real** | **Laravel Reverb + Echo** | Canais privados por conversa levando só o aviso de nova mensagem; texto, histórico paginado e reconexão pelo HTTP autorizado. Veja [docs/CHAT_TEMPO_REAL.md](docs/CHAT_TEMPO_REAL.md). |
-| **Evoluções de ambiente** | **Vite / Docker (Sail)** | Dependências declaradas; configurações de build/Compose ainda não versionadas. |
+| **Build e deploy** | **Vite / Docker** | `vite.config.js` versionado e validado no CI; o layout ainda carrega Tailwind e Alpine por CDN. O `Dockerfile` é usado no deploy do Render ([guia](docs/DEPLOY_RENDER.md)). |
 
 ---
 
@@ -230,20 +231,26 @@ flowchart TD
     end
 
     subgraph BusinessLayer["Camada de Regras de Negócio"]
-        Services["Services (CheckoutService, PaymentGatewayService)"]
-        Actions["Actions & Jobs Assíncronos"]
+        Services["Services (Checkout, Reservation, PaymentGateway, SaleDelivery, Review, Chat, ReportModeration)"]
+        Actions["Jobs e eventos (ProcessPaymentWebhookJob, RefundLatePaymentJob, MessageSent)"]
         Policies["Policies & Gates (Autorização RBAC)"]
+    end
+
+    subgraph AsyncLayer["Processos de apoio"]
+        Worker["Worker de fila (queue:work)"]
+        Scheduler["Scheduler (payments:reconcile)"]
+        Reverb["Laravel Reverb (WebSocket)"]
     end
 
     subgraph PersistenceLayer["Camada de Persistência"]
         Models["Models Eloquent"]
-        DB[(Banco de Dados PostgreSQL / MySQL)]
+        DB[(PostgreSQL / Supabase)]
     end
 
     subgraph ExternalInfra["Infraestrutura & Integrações Externas"]
-        Gateway["Gateway de Pagamento (AbacatePay PIX)"]
+        Gateway["AbacatePay PIX (sandbox / devMode)"]
         Storage["Storage de Imagens"]
-        MailService["Servidor de E-mail / Notificações"]
+        MailService["SMTP (Resend) / Notificações"]
     end
 
     Browser -->|HTTPS| Routes
@@ -255,13 +262,20 @@ flowchart TD
     Services --> Actions
     Services --> Models
     Models --> DB
-    Services -->|API / Webhook| Gateway
+    Services -->|API v2| Gateway
+    Gateway -->|Webhook HMAC| Routes
     Services --> Storage
-    Actions --> MailService
+    Actions --> Worker
+    Worker --> MailService
+    Worker -->|evento após commit| Reverb
+    Reverb -->|canal privado, só ids| Browser
+    Scheduler --> Services
     Controllers --> Blade
     Blade --> Tailwind
     Tailwind --> Browser
 ```
+
+O navegador do chat usa Laravel Echo (pusher-js) para receber o aviso de nova mensagem e busca o texto pelo HTTP autorizado. Sem Reverb ou sem worker, as mensagens continuam gravadas e chegam pela sincronização HTTP periódica. Não há carteira própria: todo valor passa pelo gateway externo.
 
 ### Visão dos casos de uso
 
@@ -353,25 +367,31 @@ flowchart LR
 
 ---
 
-## 🗄️ Modelo de Dados Preliminar
+## 🗄️ Modelo de Dados
 
-A modelagem de dados foi projetada para garantir integridade referencial, rastreabilidade contábil e histórico imutável de transações.
+A modelagem de dados foi projetada para garantir integridade referencial, rastreabilidade contábil e histórico imutável de transações. As migrations em `database/migrations` são a referência do schema.
 
 | Entidade | Tabela | Finalidade |
 | :--- | :--- | :--- |
-| **User** | `users` | Dados de autenticação, status (ativo/suspenso) e papel do usuário (`buyer`, `seller`, `admin`). |
+| **User** | `users` | Dados de autenticação, status (`active`/`suspended`) e permissão administrativa (`is_admin`). Não há coluna de papel: a mesma conta compra e, se aprovada, vende. |
 | **SellerProfile** | `seller_profiles` | Dados específicos de vendedor, bio, pontuação agregada de reputação e total de vendas. |
 | **Game** | `games` | Catálogo de jogos suportados (ex: CS2, Valorant, League of Legends, Dota 2). |
 | **Category** | `categories` | Categorias vinculadas a itens (ex: Skins de Arma, Facas, Coaching, Luvas). |
-| **Listing** | `listings` | Anúncios de produtos ou serviços com título, descrição, preço e status. |
+| **Listing** | `listings` | Anúncios de produtos ou serviços com título, descrição, preço, status, capacidade (`capacity`), duração da sessão, fuso e arquivamento. |
 | **ListingImage** | `listing_images` | Galeria de imagens de cada anúncio, com flag de imagem principal. |
 | **Cart** | `carts` | Carrinho de compras ativo do comprador (persistido por usuário ou sessão). |
 | **CartItem** | `cart_items` | Itens e quantidades adicionados ao carrinho antes do checkout. |
 | **Order** | `orders` | Pedido consolidado contendo valor total, comprador e status do fluxo de entrega. |
-| **OrderItem** | `order_items` | Itens adquiridos no pedido, **preservando o preço histórico praticado** no momento da compra. |
-| **Payment** | `payments` | Registro das tentativas de pagamento, transação externa do gateway, status e payload. |
-| **Review** | `reviews` | Avaliações com nota (1 a 5) e comentário, vinculadas estritamente a uma compra concluída. |
+| **OrderItem** | `order_items` | Itens adquiridos no pedido, **preservando preço, tipo, quantidade, duração e condições** do momento da compra. |
+| **Reservation** | `reservations` | Reserva de disponibilidade por item do pedido (`active`, `confirmed`, `released`), com expiração de 15 minutos. |
+| **OrderItemDelivery** | `order_item_deliveries` | Registro de cada entrega ou sessão de coaching do item, numerada e única. |
+| **Payment** | `payments` | Cobrança PIX no gateway: transação externa, status normalizado, QR Code, vencimento e estorno. |
+| **PaymentEvent** | `payment_events` | Webhooks recebidos, um por `event_id`, com payload sanitizado e resultado do processamento. |
+| **Review** | `reviews` | Avaliações com nota (1 a 5) e comentário, uma por item pago e entregue. |
 | **Report** | `reports` | Denúncias de anúncios ou comportamentos irregulares enviadas para moderação administrativa. |
+| **ModerationAudit** | `moderation_audits` | Histórico de decisões de moderação: bloqueio, restauração, parecer e estados anterior e novo. |
+| **Conversation** | `conversations` | Conversa única por comprador, vendedor e anúncio, com cursor de leitura de cada participante. |
+| **Message** | `messages` | Mensagens de texto com `client_uuid` único por conversa e remetente. |
 
 ### Diagrama de Relacionamentos (ERD)
 
@@ -399,13 +419,25 @@ erDiagram
     ORDERS ||--o{ PAYMENTS : "gera registros de pagamento"
     ORDERS ||--o{ REVIEWS : "reúne avaliações dos itens"
     ORDER_ITEMS ||--o| REVIEWS : "permite avaliação após entrega"
+    ORDER_ITEMS ||--o| RESERVATIONS : "reserva disponibilidade"
+    LISTINGS ||--o{ RESERVATIONS : "tem reservas"
+    ORDER_ITEMS ||--o{ ORDER_ITEM_DELIVERIES : "registra entregas e sessões"
+
+    USERS ||--o{ CONVERSATIONS : "participa (comprador ou vendedor)"
+    LISTINGS ||--o{ CONVERSATIONS : "contextualiza"
+    CONVERSATIONS ||--o{ MESSAGES : "contém"
+    USERS ||--o{ MESSAGES : "envia"
+
+    REPORTS ||--o{ MODERATION_AUDITS : "registra decisões"
 ```
+
+`payment_events` guarda os webhooks pela identidade do evento e do `charge_id`, sem chave estrangeira para `payments`. Os cursores de leitura (`buyer_last_read_message_id`, `seller_last_read_message_id`) ficam em `conversations` e são validados pela aplicação.
 
 ---
 
 ## 🔄 Ciclos de Vida e Regras de Negócio
 
-> **Regra planejada:** checkout cria reserva com expiração; aprovação confirma a venda. Coaching mantém disponibilidade conforme capacidade. Detalhes em [requirements.md](requirements.md) e na #29.
+> **Regra implementada (#13, #14, #18):** checkout cria reserva de 15 minutos; o pagamento confirmado no provedor consome a reserva. Coaching continua disponível enquanto houver capacidade. Detalhes em [requirements.md](requirements.md), no [contrato de domínio](docs/CONTRATO_DOMINIO.md) e em [pagamentos](docs/PAGAMENTOS.md).
 
 ### 1. Estados do Anúncio (`listings.status`)
 - `rascunho`: Anúncio salvo pelo vendedor sem visibilidade pública no catálogo.
@@ -415,11 +447,15 @@ erDiagram
 - `bloqueado`: Suspenso pela equipe de moderação administrativa por inconformidade com as regras.
 
 ### 2. Estados do Pedido (`orders.status`)
-- `pendente`: Pedido gerado aguardando confirmação do gateway de pagamento.
-- `pago`: Pagamento confirmado via webhook assíncrono.
-- `em_andamento`: Vendedor notificado para liberação ou entrega do item/serviço digital.
+- `pendente`: Pedido gerado com reserva ativa, aguardando confirmação do gateway de pagamento.
+- `pago`: Pagamento conferido no provedor (por webhook, pelo botão "Já paguei" ou pela reconciliação); itens passam a `em_entrega`.
+- `em_andamento`: Valor previsto no schema e contado nas métricas do painel; nenhuma transição atual o utiliza.
 - `concluido`: Todos os itens entregues; avaliação é habilitada por item pago e entregue, sem aguardar outros vendedores.
-- `cancelado`: Pedido cancelado por expiração ou estorno.
+- `cancelado`: Pedido cancelado por expiração, recusa definitiva do gateway ou pagamento tardio (estornado no provedor).
+
+### 3. Estados do item (`order_items.delivery_status`) e da reserva (`reservations.status`)
+- Item: `aguardando_pagamento` → `em_entrega` (pagamento confirmado) → `entregue` (vendedor registra a entrega; coaching só depois de todas as sessões).
+- Reserva: `active` → `confirmed` (pagamento válido, baixa a capacidade) ou `released` (expiração, recusa, cancelamento ou pagamento tardio).
 
 ---
 
@@ -427,18 +463,24 @@ erDiagram
 
 | Método | Rota | Descrição | Acesso |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/` | Atualmente `Hello World`; vitrine prevista na #9 | Público |
-| `GET` | `/anuncios` | Catálogo geral com paginação, filtros e ordenação | Público |
+| `GET` | `/` | Vitrine com jogos ativos e anúncios recentes | Público |
+| `GET` | `/anuncios` | Catálogo com paginação, filtros (inclusive nota mínima do vendedor) e ordenação | Público |
 | `GET` | `/anuncios/{slug}` | Detalhes do anúncio, galeria de fotos e dados do vendedor | Público |
-| `GET` / `POST` | `/carrinho` / `/carrinho/adicionar/{listing}` | Consultar carrinho / adicionar item | Autenticado |
-| `GET` / `POST` | `/checkout` / `/checkout/processar` | Resumo / processamento da compra | Autenticado |
-| `POST` | `/api/webhooks/payment` | Recebimento assíncrono de notificações de pagamento do gateway | Externo / Assíncrono |
-| `GET` | `/pedidos` | Histórico e rastreamento dos pedidos realizados | Comprador |
-| `POST` | `/pedidos/{order}/avaliar/{item}` | Envio de avaliação e nota para o vendedor | Comprador |
-| `GET/POST` | `/vendedor/anuncios` | Painel do vendedor para CRUD e gestão de anúncios | Vendedor |
-| `GET` | `/vendedor/vendas` | Acompanhamento de vendas recebidas e status de entrega | Vendedor |
-| `GET` | `/admin/dashboard` | Métricas gerais de faturamento, usuários e volume de anúncios | Administrador |
-| `GET` / `PATCH` | `/admin/denuncias` / `/admin/denuncias/{report}/moderar` | Consulta / julgamento de denúncias | Administrador |
+| `GET` / `POST` | `/cadastro`, `/login`, `/esqueci-minha-senha`, `/verificar-email` | Cadastro, sessão, recuperação de senha e verificação de e-mail | Visitante / Autenticado |
+| `GET` / `POST` | `/quero-vender` | Pedido de habilitação para vender | Autenticado |
+| `GET` / `POST` / `PATCH` / `DELETE` | `/carrinho`, `/carrinho/adicionar/{listing}`, `/carrinho/itens/{item}` | Consultar, adicionar, ajustar sessões e remover itens | Autenticado |
+| `GET` / `POST` | `/checkout`, `/checkout/processar` | Resumo e criação do pedido com reserva e PIX | Autenticado |
+| `POST` | `/checkout/{order}/pagamento`, `/atualizar`, `/simular-pagamento` | Gerar PIX novamente, consultar o provedor ("Já paguei") e simular pagamento no modo dev | Comprador do pedido |
+| `POST` | `/api/webhooks/payment` | Webhook da AbacatePay, com segredo e assinatura HMAC | Externo |
+| `GET` | `/pedidos`, `/pedidos/{order}` | Histórico e detalhe dos pedidos | Comprador |
+| `POST` | `/pedidos/{order}/avaliar/{item}` | Avaliação por item entregue | Comprador |
+| `POST` | `/denunciar/anuncio/{listing}` | Denúncia de anúncio | Autenticado |
+| `GET` / `POST` / `PATCH` | `/chat`, `/chat/iniciar`, `/chat/{conversation}/mensagens`, `/chat/nao-lidas` | Caixa de entrada, conversa, envio, histórico e não lidas | Participantes |
+| `GET` / `POST` / `PATCH` | `/vendedor/anuncios` | Gestão de anúncios próprios | Vendedor aprovado |
+| `GET` / `PATCH` | `/vendedor/vendas`, `/vendedor/vendas/{item}/entregar` | Vendas recebidas e registro de entrega ou sessão | Vendedor |
+| `GET` | `/admin/dashboard` | Volume transacionado, pedidos, usuários e anúncios | Administrador |
+| `GET` / `PATCH` | `/admin/usuarios`, `/admin/categorias`, `/admin/jogos/{game}/status` | Contas, aprovação de vendedores, categorias e jogos | Administrador |
+| `GET` / `PATCH` | `/admin/denuncias`, `/admin/denuncias/{report}/moderar`, `/admin/denuncias/{report}/restaurar-anuncio` | Fila de denúncias, julgamento e restauração de anúncio | Administrador |
 
 ---
 
@@ -446,7 +488,7 @@ erDiagram
 
 ## 🚀 Como Executar o Projeto
 
-Pré-requisitos: PHP 8.2+ compatível com o lockfile, Composer 2 e MySQL. Consulte o [guia completo](docs/EXECUCAO.md) para extensões, contas de demonstração, filas e solução de problemas.
+Pré-requisitos: PHP 8.2+ compatível com o lockfile, Composer 2, Node.js 22+ e PostgreSQL (Supabase) ou SQLite local. Consulte o [guia completo](docs/EXECUCAO.md) para extensões, contas de demonstração, filas e solução de problemas, e o [roteiro de apresentação](docs/ROTEIRO_APRESENTACAO.md) para subir app, Reverb e worker juntos.
 
 ```powershell
 git clone https://github.com/IgorMarcoli/TheMerchant.git
@@ -455,7 +497,7 @@ composer install
 if (!(Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
-Crie um banco **local dedicado** chamado `themerchant` e configure suas credenciais no `.env`. Para executar a base atual sem tabelas auxiliares ainda ausentes, ajuste:
+Configure um banco **dedicado** (PostgreSQL ou SQLite local) e as credenciais no `.env`. Para um primeiro teste com arquivos locais e jobs síncronos, ajuste:
 
 ```dotenv
 APP_URL=http://127.0.0.1:8000
@@ -464,7 +506,7 @@ CACHE_STORE=file
 QUEUE_CONNECTION=sync
 ```
 
-`sync` executa jobs na requisição: serve para desenvolvimento inicial, não comprova processamento assíncrono.
+`sync` executa jobs na requisição: serve para desenvolvimento inicial, não comprova processamento assíncrono. Para o chat em tempo real use `QUEUE_CONNECTION=database`, `BROADCAST_CONNECTION=reverb` e os processos descritos em [docs/CHAT_TEMPO_REAL.md](docs/CHAT_TEMPO_REAL.md).
 
 ```powershell
 php artisan config:clear
@@ -475,7 +517,7 @@ php artisan storage:link
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Gere a chave apenas na configuração inicial de um ambiente novo. Execute o seeder apenas na base nova: ele usa registros fixos e não é idempotente. Não é necessário iniciar Vite para o layout atual.
+Gere a chave apenas na configuração inicial de um ambiente novo. Execute o seeder apenas na base nova: ele usa registros fixos e não é idempotente. Para recomeçar do zero, `php artisan migrate:fresh --seed` apaga todas as tabelas: use somente em banco local descartável. Não é necessário iniciar Vite para o layout atual.
 
 Abra [o catálogo local](http://127.0.0.1:8000/anuncios) ou [o login](http://127.0.0.1:8000/login). As contas fictícias e os passos detalhados estão no [guia de execução](docs/EXECUCAO.md).
 
@@ -490,122 +532,57 @@ Verificações sem alterar o banco:
 ```powershell
 composer validate --no-check-publish
 composer check-platform-reqs
-php artisan --version
 php artisan route:list --except-vendor
-php vendor/phpunit/phpunit/phpunit --no-configuration --bootstrap vendor/autoload.php tests/Unit/CheckoutServiceTest.php
+php artisan test
+npm test
+vendor/bin/pint --test
 ```
 
-O teste unitário existente verifica somente a instanciação do serviço. Para testes de feature, use o [ambiente isolado descrito no guia](docs/TESTES.md#2-testes-automatizados-no-estado-atual): os testes usam `RefreshDatabase` e não devem apontar para a base de desenvolvimento.
+O `phpunit.xml` força SQLite em memória, fila `sync` e e-mail `array`, então a suíte não toca o banco de desenvolvimento. Último registro: 234 testes PHP e 23 testes JavaScript aprovados, com Pint aprovado, em 24/11/2026 ([#21](https://github.com/IgorMarcoli/TheMerchant/issues/21)). O mapa requisito → teste está na [matriz de rastreabilidade](docs/RASTREABILIDADE.md).
 
 
 ---
 
 ## 📁 Estrutura de Pastas do Projeto
 
+Visão resumida das pastas principais. A lista completa de controllers, services e testes está no próprio repositório.
+
 ```
 TheMerchant/
-├── .env.example                     # Exemplo de configurações de ambiente
-├── .gitignore                       # Regras de exclusão do Git
-├── CONTRIBUTING.md                  # Guia de contribuição, Git Flow e padrões de código
-├── README.md                        # Documento principal do projeto
-├── agents.md                        # Diretrizes para automação e agentes de IA
-├── requirements.md                  # Especificação formal de requisitos (RF / RNF)
-├── specs.md                         # Especificações técnicas, ERD detalhado e rotas
-├── composer.json                    # Dependências do ecossistema PHP/Laravel
-├── package.json                     # Dependências do ecossistema Node/Tailwind/Vite
+├── README.md, requirements.md, specs.md, ISSUES.md, CONTRIBUTING.md, agents.md
+├── Dockerfile, docker/entrypoint.sh     # Imagem usada no Render (app, worker, scheduler ou Reverb)
+├── .github/workflows/php-tests.yml      # CI: PHP 8.2/8.3, Pint, npm test e build
 ├── docs/
-│   ├── EXECUCAO.md                  # Instalação e operação local
-│   └── TESTES.md                    # Testes, validação manual e evidências
+│   ├── EXECUCAO.md                      # Instalação e operação local
+│   ├── TESTES.md                        # Testes, roteiros de homologação e evidências
+│   ├── RASTREABILIDADE.md               # RF/RNF → issue → critério → evidência
+│   ├── ROTEIRO_APRESENTACAO.md          # Demonstração passo a passo
+│   ├── PAGAMENTOS.md                    # AbacatePay, reservas, webhook e estados
+│   ├── CHAT_TEMPO_REAL.md               # Reverb, Echo, worker e roteiro com duas sessões
+│   ├── CONTRATO_DOMINIO.md              # Disponibilidade, sessões e conclusão por item (#29)
+│   ├── AUTENTICACAO.md, CONTAS_E_VENDEDORES.md, SUPABASE.md, DEPLOY_RENDER.md
+│   └── entrega/                         # Documento acadêmico (.docx)
 ├── app/
-│   ├── Http/
-│   │   ├── Controllers/
-│   │   │   ├── Admin/               # Controladores do painel administrativo
-│   │   │   │   ├── CategoryController.php
-│   │   │   │   ├── DashboardController.php
-│   │   │   │   ├── ReportController.php
-│   │   │   │   └── UserController.php
-│   │   │   ├── Buyer/               # Controladores da jornada do comprador
-│   │   │   │   ├── CartController.php
-│   │   │   │   ├── CheckoutController.php
-│   │   │   │   ├── OrderController.php
-│   │   │   │   └── ReviewController.php
-│   │   │   ├── Seller/              # Controladores do painel do vendedor
-│   │   │   │   ├── ListingController.php
-│   │   │   │   └── SaleController.php
-│   │   │   ├── Auth/                # Autenticação e controle de sessões
-│   │   │   ├── ListingPublicController.php
-│   │   │   ├── WebhookController.php
-│   │   │   └── Controller.php
-│   │   └── Requests/                # Form Requests com validações de entrada
-│   │       ├── CheckoutRequest.php
-│   │       └── ListingStoreRequest.php
-│   ├── Models/                      # Entidades Eloquent ORM
-│   │   ├── Cart.php
-│   │   ├── CartItem.php
-│   │   ├── Category.php
-│   │   ├── Game.php
-│   │   ├── Listing.php
-│   │   ├── ListingImage.php
-│   │   ├── Order.php
-│   │   ├── OrderItem.php
-│   │   ├── Payment.php
-│   │   ├── Report.php
-│   │   ├── Review.php
-│   │   ├── SellerProfile.php
-│   │   └── User.php
-│   ├── Policies/                    # Regras de autorização por perfil (RBAC)
-│   │   ├── ListingPolicy.php
-│   │   └── OrderPolicy.php
-│   ├── Services/                    # Camada de serviços e regras de negócio
-│   │   ├── CheckoutService.php
-│   │   └── PaymentGatewayService.php
-│   ├── Jobs/                        # Tarefas assíncronas (webhooks, e-mails)
-│   │   └── ProcessPaymentWebhookJob.php
-│   └── Notifications/               # Notificações do sistema
-│       └── OrderPaidNotification.php
-├── bootstrap/
-│   └── app.php                      # Inicializador do kernel Laravel
+│   ├── Http/Controllers/{Admin,Auth,Buyer,Seller}/, ChatController.php, WebhookController.php
+│   ├── Http/Requests/                   # Form Requests (cadastro, anúncio, checkout, chat, moderação)
+│   ├── Models/                          # User, Listing, Order, OrderItem, Reservation, Payment, PaymentEvent,
+│   │                                    # Review, Report, ModerationAudit, Conversation, Message...
+│   ├── Policies/                        # Listing, Order, OrderItem, Review, Conversation, Report, User...
+│   ├── Services/                        # Checkout, Reservation, PaymentGateway (+ Payments/), SaleDelivery,
+│   │                                    # Review, Chat, ReportModeration, Catalog, SellerAccount...
+│   ├── Jobs/                            # ProcessPaymentWebhookJob, RefundLatePaymentJob, SendPasswordResetLink
+│   ├── Events/MessageSent.php           # Aviso do chat enviado ao Reverb após o commit
+│   ├── Broadcasting/                    # Autorização do canal privado da conversa
+│   └── Console/Commands/                # payments:reconcile, test:db
 ├── database/
-│   ├── migrations/                  # Versionamento de tabelas do banco de dados
-│   │   ├── 2026_01_01_000001_create_users_table.php
-│   │   ├── 2026_01_01_000002_create_seller_profiles_table.php
-│   │   ├── 2026_01_01_000003_create_games_table.php
-│   │   ├── 2026_01_01_000004_create_categories_table.php
-│   │   ├── 2026_01_01_000005_create_listings_and_images_tables.php
-│   │   ├── 2026_01_01_000006_create_carts_and_items_tables.php
-│   │   ├── 2026_01_01_000007_create_orders_and_items_tables.php
-│   │   ├── 2026_01_01_000008_create_payments_table.php
-│   │   ├── 2026_01_01_000009_create_reviews_table.php
-│   │   └── 2026_01_01_000010_create_reports_table.php
-│   └── seeders/                     # Povoamento inicial para testes e demonstração
-│       └── DatabaseSeeder.php
-├── resources/
-│   ├── views/                       # Templates Blade da interface
-│   │   ├── layouts/
-│   │   │   ├── app.blade.php
-│   │   │   └── navigation.blade.php
-│   │   ├── listings/
-│   │   │   ├── index.blade.php
-│   │   │   └── show.blade.php
-│   │   ├── cart/
-│   │   ├── checkout/
-│   │   ├── orders/
-│   │   ├── seller/
-│   │   └── admin/
-│   ├── css/
-│   │   └── app.css                  # Folhas de estilo (Tailwind CSS)
-│   └── js/
-│       └── app.js                   # Scripts Alpine.js / Vite
-├── routes/
-│   ├── web.php                      # Rotas da interface web
-│   ├── api.php                      # Endpoints de webhooks e integrações
-│   └── console.php                  # Comandos Artisan customizados
+│   ├── migrations/                      # Schema versionado (inclui reservas, eventos de pagamento e chat)
+│   └── seeders/                         # DatabaseSeeder (contas, jogos, categorias), DemoCatalogSeeder e FreeListingsSeeder
+├── resources/views/                     # Blade: vitrine, catálogo, carrinho, checkout, pedidos, vendas, chat, admin
+├── routes/web.php, api.php, channels.php, console.php
 └── tests/
-    ├── Feature/                     # Testes de integração de fluxos HTTP
-    │   ├── CheckoutTest.php
-    │   └── WebhookPaymentTest.php
-    └── Unit/                        # Testes unitários de serviços e regras
-        └── CheckoutServiceTest.php
+    ├── Feature/                         # Fluxos HTTP, pagamentos, chat, moderação e segurança
+    ├── Unit/                            # Gateway AbacatePay e rótulos de status
+    └── js/                              # Testes do navegador (chat, filtros, formulário de anúncio, avaliação)
 ```
 
 ---
@@ -622,7 +599,7 @@ TheMerchant/
 | [M4](https://github.com/IgorMarcoli/TheMerchant/milestone/13) | Pós-venda, entrega, reputação e chat |
 | [M5](https://github.com/IgorMarcoli/TheMerchant/milestone/14) | Administração, moderação, qualidade e apresentação |
 
-Consulte o GitHub para o estado atualizado; uma issue fechada não substitui evidência de teste.
+Em 25/11/2026, as issues abertas são #16 (homologação do pagamento: concorrência em PostgreSQL, webhook fora de ordem e Render), #21 (validação ponta a ponta registrada, aguardando o fechamento), #25 (revisão final e apresentação) e #33 (documento acadêmico e diagramas). Consulte o GitHub para o estado atualizado; uma issue fechada não substitui evidência de teste.
 
 
 ---
@@ -633,6 +610,10 @@ Consulte o GitHub para o estado atualizado; uma issue fechada não substitui evi
 - 🧪 [Guia de Testes](docs/TESTES.md) — Comandos isolados, matriz de validação e evidências.
 - ✉️ [Verificação e Recuperação de Acesso](docs/AUTENTICACAO.md) — Laravel, SMTP, filas e configuração de RF03.
 - 💬 [Chat em Tempo Real](docs/CHAT_TEMPO_REAL.md) — Reverb, worker, TLS, origens permitidas, revogação de acesso e roteiro com duas sessões.
+- 💳 [Pagamentos](docs/PAGAMENTOS.md): AbacatePay em sandbox, reservas, webhook, estados e homologação da #16.
+- 🔗 [Rastreabilidade](docs/RASTREABILIDADE.md): cada RF e RNF ligado à issue, ao critério de aceite e à evidência.
+- 🎤 [Roteiro de Apresentação](docs/ROTEIRO_APRESENTACAO.md): demonstração passo a passo com as contas do seeder.
+- 📄 [Documento acadêmico](docs/entrega/TheMerchant_Documentacao_Modelagem_PoC.docx): modelagem, requisitos e evidências para a disciplina.
 
 - 📋 [Requisitos Detalhados (`requirements.md`)](./requirements.md) — Matriz completa de Requisitos Funcionais, Não Funcionais e Regras de Negócio.
 - 📐 [Especificações Técnicas & ERD (`specs.md`)](./specs.md) — Dicionário de dados, máquina de estados e contratos dos Services.
