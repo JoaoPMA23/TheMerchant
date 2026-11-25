@@ -30,15 +30,13 @@ return [
             'transport' => 'failover',
             'mailers' => ['smtp', 'log'],
         ],
-        'roundrobin' => [
-            'transport' => 'roundrobin',
-            'mailers' => ['ses', 'postmark'],
-        ],
     ],
+
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
+        'address' => env('MAIL_FROM_ADDRESS', 'contato@themerchant.local'),
+        'name' => env('MAIL_FROM_NAME', 'TheMerchant'),
     ],
+
     'markdown' => [
         'theme' => env('MAIL_MARKDOWN_THEME', 'default'),
         'paths' => [resource_path('views/vendor/mail')],
