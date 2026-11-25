@@ -9,7 +9,7 @@
 @section('content')
 <div x-data="catalogFilters" @popstate.window="restore()" class="space-y-6">
     <div>
-        <x-page-heading title="Explorar Catálogo" eyebrow="Catálogo" description="Skins, cosméticos e coaching anunciados por outros jogadores." />
+        <x-page-heading title="Explorar catálogo" eyebrow="Catálogo" description="Skins, cosméticos e coaching anunciados por outros jogadores." />
     </div>
 
     <form x-ref="form" method="GET" action="{{ route('listings.index') }}"

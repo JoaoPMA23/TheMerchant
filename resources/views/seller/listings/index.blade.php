@@ -8,11 +8,11 @@
 @endif
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5 mb-8">
     <div>
-        <x-page-heading title="Meus Anúncios" eyebrow="Sua loja" description="Gerencie seus produtos e serviços cadastrados." />
+        <x-page-heading title="Meus anúncios" eyebrow="Sua loja" description="Gerencie seus produtos e serviços cadastrados." />
     </div>
     <div class="flex gap-3">
         <a href="{{ route('seller.sales.index') }}" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">
-            Ver Vendas
+            Ver vendas
         </a>
         @can('create', \App\Models\Listing::class)
         <a href="{{ route('seller.anuncios.create') }}" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-slate-950 text-xs font-bold shadow-lg shadow-brand-600/10 transition">
@@ -28,7 +28,7 @@
             <div class="flex items-center gap-4">
                 <div class="w-14 h-14 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-xl">
                     @if($listing->primaryImage)
-                        <img src="{{ $listing->primaryImage->url }}" alt="Capa de {{ $listing->title }}" width="56" height="56" class="w-14 h-14 rounded-xl object-cover">
+                        <img src="{{ $listing->primaryImage->url }}" alt="Capa de {{ $listing->title }}" width="56" height="56" loading="lazy" class="w-14 h-14 rounded-xl object-cover">
                     @else
                         <x-icon name="gem" class="!h-6 !w-6 text-slate-500" />
                     @endif
@@ -43,7 +43,7 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider
+                <span class="px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider
                     {{ $listing->status === 'publicado' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
                        ($listing->status === 'pausado' ? 'bg-amber-950 text-amber-400 border border-amber-800' :
                        'bg-slate-800 text-slate-400') }}">
@@ -64,13 +64,14 @@
 
                 @endcan
                 @can('delete', $listing)
-                <form action="{{ route('seller.anuncios.destroy', $listing) }}" method="POST" onsubmit="return confirm('Arquivar este anúncio e removê-lo da vitrine? Pedidos e conversas serão preservados.')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="text-xs text-rose-400 hover:text-rose-300 px-3 py-1.5 rounded-lg bg-rose-950/40 border border-rose-800/40 transition">
-                        Arquivar
-                    </button>
-                </form>
+                <x-confirm-dialog
+                    :action="route('seller.anuncios.destroy', $listing)"
+                    title="Arquivar este anúncio?"
+                    message="Ele sai da vitrine. Pedidos e conversas ligados a ele são preservados."
+                    confirm-label="Arquivar"
+                    trigger-class="text-xs text-rose-400 hover:text-rose-300 px-3 py-1.5 rounded-lg bg-rose-950/40 border border-rose-800/40 transition">
+                    Arquivar
+                </x-confirm-dialog>
                 @endcan
             </div>
         </div>

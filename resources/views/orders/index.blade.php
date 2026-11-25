@@ -18,7 +18,7 @@
                     </div>
                     <div class="flex items-center gap-4">
                         <span class="text-slate-400">{{ $order->created_at->format('d/m/Y H:i') }}</span>
-                        <span class="px-2.5 py-1 rounded-lg font-bold text-[10px] uppercase tracking-wider
+                        <span class="px-2.5 py-1 rounded-lg font-bold text-xs uppercase tracking-wider
                             {{ $order->status === 'concluido' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
                                ($order->status === 'pago' ? 'bg-brand-950 text-brand-400 border border-brand-800' :
                                'bg-amber-950 text-amber-400 border border-amber-800') }}">

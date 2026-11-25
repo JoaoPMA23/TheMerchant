@@ -18,7 +18,7 @@
     @endonce
     <div x-data="reviewForm" class="my-3">
         <details x-show="!saved" class="rounded-2xl border border-slate-700 bg-slate-950 p-4">
-            <summary class="cursor-pointer rounded text-sm font-semibold text-amber-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-400">Avaliar Vendedor</summary>
+            <summary class="cursor-pointer rounded text-sm font-semibold text-amber-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-400">Avaliar vendedor</summary>
             <form action="{{ route('orders.review.store', [$order, $item]) }}" method="POST"
                   @submit.prevent="submit($el)" :aria-busy="sending" class="mt-4 space-y-4">
                 @csrf

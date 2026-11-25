@@ -30,7 +30,7 @@
                         <h3 class="text-sm font-semibold text-white mt-1">Anúncio: {{ $report->listing?->title ?? 'Anúncio Excluído' }}</h3>
                         <span class="text-xs text-slate-500">Denunciante: {{ $report->reporter->name }} &bull; {{ $report->created_at->format('d/m/Y H:i') }}</span>
                     </div>
-                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider
                         {{ $report->status === 'aberta' ? 'bg-rose-950 text-rose-400 border border-rose-800' : 'bg-slate-800 text-slate-400' }}">
                         {{ $report->status_label }}
                     </span>
@@ -45,7 +45,7 @@
                         @csrf
                         @method('PATCH')
                         <div class="flex-1 w-full">
-                            <label for="resolution-{{ $report->id }}" class="block text-[11px] text-slate-400 mb-1">Parecer da Moderação</label>
+                            <label for="resolution-{{ $report->id }}" class="block text-xs text-slate-400 mb-1">Parecer da moderação</label>
                             <input id="resolution-{{ $report->id }}" type="text" name="resolution_notes" required minlength="10" maxlength="1000" value="{{ old('resolution_notes') }}" placeholder="Justificativa da decisão..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white">
                         </div>
                         <div>
@@ -57,14 +57,14 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <input type="checkbox" name="block_listing" value="1" id="blk-{{ $report->id }}" class="rounded bg-slate-800">
-                            <label for="blk-{{ $report->id }}" class="text-[11px] text-rose-300">Bloquear se procedente</label>
+                            <label for="blk-{{ $report->id }}" class="text-xs text-rose-300">Bloquear se procedente</label>
                         </div>
                         <button type="submit" class="px-4 py-1.5 bg-brand-600 hover:bg-brand-500 text-slate-950 rounded-xl text-xs font-semibold">
                             Julgar
                         </button>
                     </form>
                 @else
-                    <div class="text-[11px] text-slate-400 pt-2 border-t border-slate-800">
+                    <div class="text-xs text-slate-400 pt-2 border-t border-slate-800">
                         Parecer: {{ $report->resolution_notes }}
                         @if($report->moderator)
                             <span class="block mt-1 text-slate-500">Moderada por {{ $report->moderator->name }}{{ $report->updated_at ? ' em '.$report->updated_at->format('d/m/Y H:i') : '' }}</span>
@@ -76,9 +76,9 @@
                             @csrf
                             @method('PATCH')
                             <div class="flex-1 w-full">
-                                <label for="restore-{{ $report->id }}" class="block text-[11px] text-slate-400 mb-1">O anúncio está bloqueado. Motivo para restaurar</label>
+                                <label for="restore-{{ $report->id }}" class="block text-xs text-slate-400 mb-1">O anúncio está bloqueado. Motivo para restaurar</label>
                                 <input id="restore-{{ $report->id }}" type="text" name="resolution_notes" required minlength="10" maxlength="1000" placeholder="Ex.: vendedor comprovou a origem do item" aria-describedby="restore-help-{{ $report->id }}" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white">
-                                <p id="restore-help-{{ $report->id }}" class="mt-1 text-[11px] text-slate-500">O anúncio volta pausado e só aparece no catálogo quando o vendedor reativar.</p>
+                                <p id="restore-help-{{ $report->id }}" class="mt-1 text-xs text-slate-500">O anúncio volta pausado e só aparece no catálogo quando o vendedor reativar.</p>
                             </div>
                             <button type="submit" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold">
                                 Restaurar anúncio
@@ -89,10 +89,10 @@
 
                 @if($report->audits->isNotEmpty())
                     <details class="mt-4 border-t border-slate-800 pt-3">
-                        <summary class="cursor-pointer text-[11px] font-semibold text-slate-400">Histórico de moderação ({{ $report->audits->count() }})</summary>
+                        <summary class="cursor-pointer text-xs font-semibold text-slate-400">Histórico de moderação ({{ $report->audits->count() }})</summary>
                         <ol class="mt-3 space-y-2">
                             @foreach($report->audits as $audit)
-                                <li class="rounded-lg bg-slate-950 px-3 py-2 text-[11px] text-slate-400">
+                                <li class="rounded-lg bg-slate-950 px-3 py-2 text-xs text-slate-400">
                                     <span class="font-semibold text-slate-200">{{ $audit->moderator?->name ?? 'Moderador removido' }}</span>
                                     @if($audit->action === 'anuncio_restaurado')
                                         <span>restaurou o anúncio ({{ \App\Support\StatusLabel::for($audit->new_listing_status) }})</span>

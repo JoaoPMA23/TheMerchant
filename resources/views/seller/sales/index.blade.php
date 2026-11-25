@@ -8,7 +8,7 @@
         <div>
             <x-page-heading title="Gestão de Vendas" eyebrow="Sua loja" description="Acompanhe pedidos recebidos, instruções e entregas digitais." />
         </div>
-        <a href="{{ route('seller.anuncios.index') }}" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-300 hover:text-white transition">
+        <a href="{{ route('seller.anuncios.index') }}" class="inline-flex min-h-11 items-center px-4 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-300 hover:text-white transition">
             &larr; Meus Anúncios
         </a>
     </div>
@@ -31,10 +31,10 @@
                         <span class="text-slate-500 ml-2">| Comprador: {{ $sale->order->buyer->name }}</span>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <span class="rounded-lg border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider {{ $sale->order->isPaid() ? 'border-emerald-800 bg-emerald-950 text-emerald-400' : 'border-amber-800 bg-amber-950 text-amber-400' }}">
+                        <span class="rounded-lg border px-2.5 py-1 text-xs font-bold uppercase tracking-wider {{ $sale->order->isPaid() ? 'border-emerald-800 bg-emerald-950 text-emerald-400' : 'border-amber-800 bg-amber-950 text-amber-400' }}">
                             Pedido {{ $sale->order->status_label }}
                         </span>
-                        <span class="rounded-lg border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider {{ $sale->delivery_status === 'entregue' ? 'border-emerald-800 bg-emerald-950 text-emerald-400' : 'border-slate-700 bg-slate-800 text-slate-300' }}">
+                        <span class="rounded-lg border px-2.5 py-1 text-xs font-bold uppercase tracking-wider {{ $sale->delivery_status === 'entregue' ? 'border-emerald-800 bg-emerald-950 text-emerald-400' : 'border-slate-700 bg-slate-800 text-slate-300' }}">
                             {{ $sale->delivery_status_label }}
                         </span>
                     </div>
@@ -87,7 +87,7 @@
 
                 @if(filled($sale->order->notes))
                     <div class="mb-4 rounded-xl border border-slate-800 bg-slate-950 p-4">
-                        <h4 class="mb-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">Instruções do comprador / Trade URL</h4>
+                        <h4 class="mb-1 text-xs font-bold uppercase tracking-wide text-slate-400">Instruções do comprador / Trade URL</h4>
                         <p class="whitespace-pre-line break-words text-xs text-slate-200">{{ $sale->order->notes }}</p>
                     </div>
                 @endif
@@ -101,7 +101,7 @@
                         @if($sale->deliveries->isNotEmpty())
                             <ul class="mt-2 flex flex-wrap gap-2">
                                 @foreach($sale->deliveries as $delivery)
-                                    <li class="rounded-lg bg-slate-950 px-2 py-1 text-[10px] text-slate-400">
+                                    <li class="rounded-lg bg-slate-950 px-2 py-1 text-xs text-slate-400">
                                         Sessão {{ $delivery->delivery_number }} · {{ $delivery->delivered_at->format('d/m/Y H:i') }}
                                     </li>
                                 @endforeach

@@ -16,13 +16,35 @@
     --tm-neutral-100: 244 245 247;
     --tm-neutral-200: 219 222 228;
     --tm-neutral-300: 195 199 207;
+    --tm-neutral-350: 183 189 199;
     --tm-neutral-400: 165 170 181;
     --tm-neutral-500: 142 149 161;
     --tm-neutral-600: 99 108 122;
     --tm-neutral-700: 58 65 76;
     --tm-neutral-800: 41 46 54;
+    --tm-neutral-850: 27 30 37;
     --tm-neutral-900: 20 23 29;
     --tm-neutral-950: 12 14 18;
+    /* Green-tinted greys of the hero and product art (low chroma). */
+    --tm-sage-300: 182 190 180;
+    --tm-sage-400: 168 180 161;
+    --tm-sage-600: 104 118 83;
+    --tm-sage-700: 88 105 74;
+    --tm-sage-800: 52 64 44;
+    --tm-sage-950: 20 29 22;
+    /* Muted olive greens for art icons, active filters and hover borders. */
+    --tm-olive-300: 165 191 125;
+    --tm-olive-400: 163 183 145;
+    --tm-olive-500: 113 143 68;
+    --tm-olive-600: 98 125 56;
+    --tm-olive-700: 78 98 50;
+    /* Violet tints of the services/coaching surfaces. */
+    --tm-violet-200: 208 177 255;
+    --tm-violet-300: 180 178 191;
+    --tm-violet-400: 186 157 221;
+    --tm-violet-500: 164 148 184;
+    --tm-violet-600: 172 131 234;
+    --tm-violet-800: 60 53 77;
     --tm-bg: rgb(var(--tm-neutral-950));
     --tm-panel: rgb(var(--tm-neutral-900));
     --tm-border: rgb(var(--tm-neutral-800));
@@ -94,17 +116,17 @@ input[type="checkbox"], input[type="radio"] {
 .market-footer-mark { display: grid; place-items: center; width: 34px; height: 36px; border-radius: 9px; background: var(--tm-accent); color: var(--tm-bg); transform: rotate(-6deg); }
 .market-footer-accent { color: var(--tm-accent); }
 .market-footer-brand p { max-width: 280px; margin: 18px 0; color: var(--tm-muted); font-size: 12px; line-height: 1.9; }
-.market-footer-signature { display: inline-flex; gap: 8px; align-items: center; color: var(--tm-muted); font-size: 11px; }
+.market-footer-signature { display: inline-flex; gap: 8px; align-items: center; color: var(--tm-muted); font-size: 12px; }
 .market-footer-signature .tm-icon { color: var(--tm-accent); width: 18px; height: 18px; }
 .market-footer nav h3 { margin: 5px 0 14px; font-size: 13px; font-weight: 700; }
 .market-footer nav ul { list-style: none; padding: 0; margin: 0; }
 .market-footer nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--tm-muted); font-size: 12px; line-height: 1.5; }
 .market-footer nav a:hover { color: var(--tm-accent); }
 .market-footer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 0; border-top: 1px solid var(--tm-border); color: var(--tm-muted); }
-.market-footer-bottom p { font-size: 11px; line-height: 1.7; }
-.market-footer-bottom small { display: block; margin-top: 5px; font-size: 10px; line-height: 1.7; }
-.market-footer-locale { display: inline-flex; align-items: center; gap: 13px; flex-shrink: 0; font-size: 11px; }
-.market-footer-locale span { color: rgb(var(--tm-neutral-600)); }
+.market-footer-bottom p { font-size: 12px; line-height: 1.7; }
+.market-footer-bottom small { display: block; margin-top: 5px; color: rgb(var(--tm-neutral-500)); font-size: 12px; line-height: 1.7; }
+.market-footer-locale { display: inline-flex; align-items: center; gap: 13px; flex-shrink: 0; font-size: 12px; }
+.market-footer-locale span { color: rgb(var(--tm-neutral-500)); }
 @media (max-width: 900px) {
     .market-footer-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 25px; }
     .market-footer-brand { grid-column: 1 / -1; }

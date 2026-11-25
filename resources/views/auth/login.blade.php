@@ -28,7 +28,7 @@
             </div>
 
             <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold rounded-xl text-xs shadow-lg shadow-brand-600/10 transition">
-                Entrar na Plataforma
+                Entrar na plataforma
             </button>
         </form>
 

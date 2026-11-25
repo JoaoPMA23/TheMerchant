@@ -234,7 +234,7 @@ class OrderTest extends TestCase
         $response->assertSee('R$ 230,00');
         $response->assertSee('mp_trans_998877');
         $response->assertSee('MERCADOPAGO');
-        $response->assertSee('Linha do Tempo do Pedido');
+        $response->assertSee('Linha do tempo do pedido');
         $response->assertSee('Em Andamento');
         $response->assertSee('Trade URL: https://steamcommunity.com/tradeoffer/new/?partner=12345');
         $response->assertSee('Vandal Sublime 2.0');
