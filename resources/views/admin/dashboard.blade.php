@@ -132,7 +132,7 @@
                             <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded
                                 {{ in_array($order->status, ['pago', 'em_andamento', 'concluido']) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/40' :
                                    ($order->status === 'pendente' ? 'bg-amber-950 text-amber-400 border border-amber-800/40' : 'bg-slate-800 text-slate-400') }}">
-                                {{ $order->status }}
+                                {{ $order->status_label }}
                             </span>
                         </div>
                     </div>

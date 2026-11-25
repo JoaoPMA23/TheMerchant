@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\StatusLabel;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -36,5 +38,11 @@ class Report extends Model
     public function audits(): HasMany
     {
         return $this->hasMany(ModerationAudit::class)->latest();
+    }
+
+    /** Rótulo em português do status, para exibir nas telas. */
+    protected function statusLabel(): Attribute
+    {
+        return Attribute::get(fn (): string => StatusLabel::for($this->status));
     }
 }

@@ -17,7 +17,7 @@
                    ($order->status === 'em_andamento' ? 'bg-cyan-950 text-cyan-400 border border-cyan-800' :
                    ($order->status === 'cancelado' ? 'bg-rose-950 text-rose-400 border border-rose-800' :
                    'bg-amber-950 text-amber-400 border border-amber-800'))) }}">
-                ● Status do Pedido: {{ str_replace('_', ' ', ucfirst($order->status)) }}
+                ● Status do Pedido: {{ $order->status_label }}
             </span>
         </div>
     </div>
@@ -69,7 +69,7 @@
                             {{ $isPaid ? '✓' : '1' }}
                         </div>
                         <span class="text-xs font-bold text-white">1. Pedido Criado @if($isPaid)<span class="sr-only"> (etapa concluída)</span>@endif</span>
-                        <span class="text-[10px] text-slate-400 mt-0.5">Pendente</span>
+                        <span class="text-[10px] text-slate-400 mt-0.5">{{ $isPaid ? 'Registrado' : 'Aguardando pagamento' }}</span>
                         <span class="text-[9px] text-slate-500 mt-1 font-mono">{{ $order->created_at->format('d/m H:i') }}</span>
                     </div>
 
@@ -148,7 +148,7 @@
                                 'refunded' => 'Estornado',
                                 'disputed' => 'Em contestação',
                                 'pending', 'payment.created', 'in_process' => 'Aguardando / em análise',
-                                default => ucfirst(str_replace(['_', '.'], ' ', $paymentStatus)),
+                                default => \App\Support\StatusLabel::for($paymentStatus),
                             } }}
                         </span>
                     </div>
@@ -237,7 +237,7 @@
                                     {{ $item->delivery_status === 'entregue' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
                                        ($item->delivery_status === 'em_entrega' ? 'bg-cyan-950 text-cyan-400 border border-cyan-800' :
                                        'bg-slate-800 text-slate-400 border border-slate-700') }}">
-                                    Entrega: {{ str_replace('_', ' ', ucfirst($item->delivery_status)) }}
+                                    Entrega: {{ $item->delivery_status_label }}
                                 </span>
                                 @if($item->delivered_at)
                                     <span class="text-[10px] text-slate-500 mt-1 font-mono">

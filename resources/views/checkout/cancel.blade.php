@@ -11,7 +11,7 @@
 
         <div class="rounded-xl bg-slate-950 border border-slate-800 p-5 mt-6 text-sm space-y-3">
             <div class="flex justify-between gap-4"><span class="text-slate-500">Número do pedido</span><strong class="font-mono text-brand-400">{{ $order->order_number }}</strong></div>
-            <div class="flex justify-between gap-4"><span class="text-slate-500">Status do pedido</span><strong class="text-slate-200">{{ ucfirst(str_replace('_', ' ', $order->status)) }}</strong></div>
+            <div class="flex justify-between gap-4"><span class="text-slate-500">Status do pedido</span><strong class="text-slate-200">{{ $order->status_label }}</strong></div>
             <div class="flex justify-between gap-4"><span class="text-slate-500">Status do pagamento</span><strong class="text-amber-300">{{ match ($order->payment?->status) {
                 null => 'Aguardando retorno do gateway',
                 'pending' => 'Aguardando pagamento do PIX',
@@ -21,7 +21,7 @@
                 'failed' => 'Pagamento não concluído',
                 'refunded' => 'Pagamento estornado',
                 'disputed' => 'Pagamento em contestação',
-                default => ucfirst(str_replace(['_', '.'], ' ', $order->payment->status)),
+                default => \App\Support\StatusLabel::for($order->payment->status),
             } }}</strong></div>
             <div class="flex justify-between gap-4"><span class="text-slate-500">Total</span><strong class="text-white">R$ {{ number_format($order->total_amount, 2, ',', '.') }}</strong></div>
         </div>

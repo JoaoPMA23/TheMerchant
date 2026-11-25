@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Support\StatusLabel;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -99,5 +101,11 @@ class Listing extends Model
         return $this->archived_at === null && $this->status === 'publicado' && $this->capacity > 0
             && ($this->game?->active ?? false) && ($this->category?->is_active ?? false)
             && ($this->seller?->isSeller() ?? false);
+    }
+
+    /** Rótulo em português do status, para exibir nas telas. */
+    protected function statusLabel(): Attribute
+    {
+        return Attribute::get(fn (): string => StatusLabel::for($this->status));
     }
 }

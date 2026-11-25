@@ -39,7 +39,7 @@
 
         <div class="rounded-xl bg-slate-950 border border-slate-800 p-5 mt-6 text-sm space-y-3">
             <div class="flex justify-between gap-4"><span class="text-slate-500">Número do pedido</span><strong class="font-mono text-brand-400">{{ $order->order_number }}</strong></div>
-            <div class="flex justify-between gap-4"><span class="text-slate-500">Pedido</span><strong class="text-slate-200">{{ ucfirst(str_replace('_', ' ', $order->status)) }}</strong></div>
+            <div class="flex justify-between gap-4"><span class="text-slate-500">Pedido</span><strong class="text-slate-200">{{ $order->status_label }}</strong></div>
             <div class="flex justify-between gap-4"><span class="text-slate-500">Pagamento</span><strong class="{{ $isPaid ? 'text-emerald-400' : 'text-amber-300' }}">{{ $statusLabel }}</strong></div>
             <div class="flex justify-between gap-4"><span class="text-slate-500">Total</span><strong class="text-white">R$ {{ number_format($order->total_amount, 2, ',', '.') }}</strong></div>
             @if($order->reservation_expires_at && ! $isPaid && ! $isCancelled)

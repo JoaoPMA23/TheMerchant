@@ -32,7 +32,7 @@
                     </div>
                     <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider
                         {{ $report->status === 'aberta' ? 'bg-rose-950 text-rose-400 border border-rose-800' : 'bg-slate-800 text-slate-400' }}">
-                        {{ str_replace('_', ' ', $report->status) }}
+                        {{ $report->status_label }}
                     </span>
                 </div>
 
@@ -95,9 +95,9 @@
                                 <li class="rounded-lg bg-slate-950 px-3 py-2 text-[11px] text-slate-400">
                                     <span class="font-semibold text-slate-200">{{ $audit->moderator?->name ?? 'Moderador removido' }}</span>
                                     @if($audit->action === 'anuncio_restaurado')
-                                        <span>restaurou o anúncio ({{ $audit->new_listing_status }})</span>
+                                        <span>restaurou o anúncio ({{ \App\Support\StatusLabel::for($audit->new_listing_status) }})</span>
                                     @else
-                                        <span>alterou {{ str_replace('_', ' ', $audit->previous_report_status ?? 'nova') }} para {{ str_replace('_', ' ', $audit->new_report_status) }}</span>
+                                        <span>alterou {{ \App\Support\StatusLabel::for($audit->previous_report_status ?? 'nova') }} para {{ \App\Support\StatusLabel::for($audit->new_report_status) }}</span>
                                     @endif
                                     @if($audit->new_listing_status === 'bloqueado' && $audit->previous_listing_status !== 'bloqueado')
                                         <span>e bloqueou o anúncio</span>

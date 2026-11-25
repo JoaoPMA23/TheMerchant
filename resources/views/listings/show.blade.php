@@ -82,17 +82,19 @@
                 <div class="text-3xl font-black text-brand-400 mb-6">R$ {{ number_format($listing->price, 2, ',', '.') }}</div>
 
                 @if($isAvailable && ! $isOwnListing)
-                    <form action="{{ route('cart.add', $listing) }}" method="POST">
+                    <form action="{{ route('cart.add', $listing) }}" method="POST"
+                          x-data="{ enviando: false }" @submit="enviando = true" @pageshow.window="enviando = false" :aria-busy="enviando">
                         @csrf
-                        <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-brand-600/10 transition flex items-center justify-center gap-2">
-                            <x-icon name="cart" class="!h-5 !w-5" /> Adicionar ao carrinho
+                        <button type="submit" :disabled="enviando" class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-brand-600/10 transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-wait">
+                            <x-icon name="cart" class="!h-5 !w-5" />
+                            <span x-text="enviando ? 'Adicionando...' : 'Adicionar ao carrinho'">Adicionar ao carrinho</span>
                         </button>
                     </form>
                 @elseif($isOwnListing)
                     <div class="w-full py-3 text-center rounded-xl bg-slate-800 text-slate-400 font-semibold text-sm">Este é seu anúncio</div>
                 @else
                     <button type="button" disabled aria-disabled="true" class="w-full py-3 text-center rounded-xl bg-slate-800 text-slate-400 font-bold text-sm cursor-not-allowed">
-                        Indisponível · {{ ucfirst(str_replace('_', ' ', $listing->status)) }}
+                        Indisponível · {{ $listing->status_label }}
                     </button>
                 @endif
 

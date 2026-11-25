@@ -22,7 +22,7 @@
                             {{ $order->status === 'concluido' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
                                ($order->status === 'pago' ? 'bg-brand-950 text-brand-400 border border-brand-800' :
                                'bg-amber-950 text-amber-400 border border-amber-800') }}">
-                            {{ $order->status }}
+                            {{ $order->status_label }}
                         </span>
                     </div>
                 </div>

@@ -47,7 +47,7 @@
                     {{ $listing->status === 'publicado' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
                        ($listing->status === 'pausado' ? 'bg-amber-950 text-amber-400 border border-amber-800' :
                        'bg-slate-800 text-slate-400') }}">
-                    {{ $listing->status }}
+                    {{ $listing->status_label }}
                 </span>
 
                 @can('update', $listing)

@@ -32,10 +32,10 @@
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="rounded-lg border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider {{ $sale->order->isPaid() ? 'border-emerald-800 bg-emerald-950 text-emerald-400' : 'border-amber-800 bg-amber-950 text-amber-400' }}">
-                            Pedido {{ str_replace('_', ' ', $sale->order->status) }}
+                            Pedido {{ $sale->order->status_label }}
                         </span>
                         <span class="rounded-lg border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider {{ $sale->delivery_status === 'entregue' ? 'border-emerald-800 bg-emerald-950 text-emerald-400' : 'border-slate-700 bg-slate-800 text-slate-300' }}">
-                            {{ str_replace('_', ' ', $sale->delivery_status) }}
+                            {{ $sale->delivery_status_label }}
                         </span>
                     </div>
                 </div>
