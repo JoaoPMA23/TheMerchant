@@ -24,7 +24,7 @@ class CheckoutController extends Controller
 
     public function index(Request $request): View|RedirectResponse
     {
-        $cart = Cart::with(['items.listing.primaryImage'])
+        $cart = Cart::with(['items.listing.primaryImage', 'items.listing.game', 'items.listing.category', 'items.listing.seller'])
             ->where('user_id', $request->user()->id)
             ->first();
 
