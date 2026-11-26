@@ -3,6 +3,7 @@ window.catalogFilters = () => ({
     loading: false,
     error: '',
     tags: [],
+    filtersOpen: false, // Painel de filtros no celular; no desktop ele fica sempre visível.
     rangeMax: 1000,
     timer: null,
     controller: null,

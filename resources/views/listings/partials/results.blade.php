@@ -1,5 +1,5 @@
-<p class="text-sm text-slate-300">{{ $listings->total() }} anúncio(s) encontrado(s)</p>
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+<p class="tm-results-count">{{ $listings->total() }} anúncio(s) encontrado(s)</p>
+<div class="tm-product-grid tm-catalog-grid">
     @forelse($listings as $listing)
         <x-listing-card :listing="$listing" />
     @empty

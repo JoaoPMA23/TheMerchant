@@ -26,7 +26,7 @@
             <a href="{{ route('listings.index', ['tipo' => 'service']) }}" @if(request()->routeIs('listings.index') && request('tipo') === 'service') aria-current="page" @endif>Coaching</a>
             <a href="{{ route('home') }}#como-funciona">Como funciona</a>
         </div>
-        <a class="tm-sell-link" href="{{ route('seller.application') }}"><x-icon name="store" />Quero vender <x-icon /></a>
+        <a class="tm-sell-link" href="{{ route('seller.application') }}"><x-icon name="store" />Quero vender</a>
         <a class="tm-mobile-cart" href="{{ route('cart.index') }}"><x-icon name="cart" />Meu carrinho</a>
     </div></nav>
     @auth

@@ -13,8 +13,8 @@ class StorefrontService
             'games' => Game::where('active', true)
                 ->withCount(['listings' => fn ($query) => $query->available()])
                 ->orderByDesc('listings_count')->orderBy('name')->limit(6)->get(),
-            'listings' => Listing::with(['game', 'category', 'primaryImage'])
-                ->available()->latest()->orderByDesc('id')->limit(4)->get(),
+            'listings' => Listing::with(['game', 'category', 'seller.sellerProfile', 'primaryImage'])
+                ->available()->latest()->orderByDesc('id')->limit(8)->get(),
         ];
     }
 }

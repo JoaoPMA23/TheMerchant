@@ -1,6 +1,6 @@
 # Padrão visual do TheMerchant
 
-A home é a referência de composição do produto: superfícies escuras, verde para ações e destaques, tipografia Plus Jakarta Sans, títulos com hierarquia clara e conteúdo dividido em blocos com espaço para leitura.
+A home é a referência de composição do produto: superfícies escuras e planas, verde só em ação, preço e estado ativo, tipografia Plus Jakarta Sans, títulos com hierarquia clara e conteúdo em blocos. A referência de estrutura é o GGMAX: vitrine densa, card com vendedor e preço, pouco texto de marketing.
 
 ## Diagnóstico
 
@@ -40,9 +40,9 @@ Antes da padronização, a home carregava sozinha `storefront.css`, usava uma ma
 
 ## Critérios de qualidade
 
-- Preserve o conteúdo e a função de cada tela; o hero ilustrado pertence à home.
+- Preserve o conteúdo e a função de cada tela. Nada de decoração sem função: órbitas, coordenadas, selos girados, brilho, degradê e zoom no hover ficaram de fora de propósito.
 - Use os tokens de `theme.css` e as utilidades Tailwind para compor os painéis. Mantenha os estilos dos componentes compartilhados em `storefront.css`.
-- Use `bg-slate-900`, `border-slate-800`, cantos de 12–16 px e espaçamento de 24–32 px nos painéis. Ações principais usam verde; erros e ações destrutivas mantêm suas cores semânticas.
+- Use `bg-slate-900`, `border-slate-800`, cantos de 6 a 8 px e espaçamento de 24 a 32 px nos painéis. Ações principais usam verde; erros e ações destrutivas mantêm suas cores semânticas.
 - Tenha um único `h1`, rótulos associados aos campos, foco visível e alvos de interação de pelo menos 44 px nos formulários.
 - Empilhe títulos e ações em telas pequenas. Tabelas e navegação extensa devem permitir rolagem dentro de sua própria área, sem alargar a página.
 - Apresente estados vazios com contexto e um próximo passo quando houver uma ação útil.

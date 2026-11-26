@@ -5,15 +5,15 @@
 @endphp
 
 <nav aria-label="Etapas da compra" {{ $attributes->merge(['class' => 'mb-6']) }}>
-    <ol class="flex items-center gap-2 text-xs font-semibold">
+    <ol class="flex flex-wrap items-center gap-2 text-sm font-semibold">
         @foreach ($steps as $number => $label)
             @php($state = $number < $current ? 'done' : ($number === $current ? 'current' : 'next'))
             <li class="flex items-center gap-2" @if ($state === 'current') aria-current="step" @endif>
-                <span class="grid h-6 w-6 place-items-center rounded-full border {{ match ($state) {
+                <span class="grid h-6 w-6 place-items-center rounded-md border text-xs {{ match ($state) {
                     'done' => 'border-brand-600 bg-brand-600 text-slate-950',
                     'current' => 'border-brand-400 text-brand-300',
                     default => 'border-slate-700 text-slate-400',
-                } }}" aria-hidden="true">{{ $state === 'done' ? '✓' : $number }}</span>
+                } }}" aria-hidden="true">@if ($state === 'done')<x-icon name="check" class="!h-3.5 !w-3.5" />@else{{ $number }}@endif</span>
                 <span class="{{ $state === 'next' ? 'text-slate-400' : 'text-slate-200' }}">
                     {{ $label }}@if ($state === 'done')<span class="sr-only"> (concluída)</span>@endif
                 </span>
