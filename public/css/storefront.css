@@ -127,27 +127,177 @@
 .tm-account {
     display:flex;
     align-items:center;
-    gap:16px;
+    gap:8px;
     flex-shrink:0;
     margin-left:auto;
 }
 
-.tm-cart,.tm-login {
+.tm-login {
     min-height:44px;
     display:flex;
     align-items:center;
     gap:8px;
 }
 
-.tm-cart {
+.tm-icon-link {
+    position:relative;
+    display:grid;
+    place-items:center;
     width:44px;
-    justify-content:center;
-    border-right:1px solid var(--tm-border);
-    padding-right:12px;
+    height:44px;
+    border-radius:6px;
+    color:rgb(var(--tm-neutral-300));
 }
 
-.tm-cart:hover,.tm-login:hover {
+.tm-icon-link:hover,.tm-login:hover {
     color:var(--tm-accent);
+}
+
+.tm-count {
+    position:absolute;
+    top:2px;
+    right:0;
+    min-width:20px;
+    height:20px;
+    padding:0 5px;
+    border-radius:10px;
+    background:var(--tm-accent);
+    color:rgb(var(--tm-brand-950));
+    font-size:12px;
+    font-weight:800;
+    line-height:20px;
+    text-align:center;
+}
+
+/* Menu da conta: pedidos, mensagens, vendas e admin ficam aqui, não numa faixa fixa. */
+.tm-account-menu {
+    position:relative;
+    margin-left:4px;
+    padding-left:12px;
+    border-left:1px solid var(--tm-border);
+}
+
+.tm-account-trigger {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    min-height:44px;
+    padding:0 4px;
+    border:0;
+    background:none;
+    color:var(--tm-text);
+    font:inherit;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.tm-account-trigger:hover .tm-account-name,.tm-account-trigger[aria-expanded="true"] .tm-account-name {
+    color:var(--tm-accent);
+}
+
+.tm-account-trigger .tm-avatar {
+    width:32px;
+    height:32px;
+    font-size:13px;
+}
+
+.tm-account-name {
+    max-width:120px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.tm-account-chevron {
+    width:16px;
+    height:16px;
+    color:var(--tm-muted);
+    transform:rotate(90deg);
+    transition:transform .15s;
+}
+
+.tm-account-trigger[aria-expanded="true"] .tm-account-chevron {
+    transform:rotate(-90deg);
+}
+
+.tm-account-panel {
+    position:absolute;
+    top:calc(100% + 8px);
+    right:0;
+    z-index:60;
+    width:260px;
+    background:var(--tm-panel);
+    border:1px solid rgb(var(--tm-neutral-700));
+    border-radius:8px;
+    box-shadow:0 12px 32px rgb(0 0 0 / .45);
+    overflow:hidden;
+}
+
+.tm-account-head {
+    display:grid;
+    gap:2px;
+    padding:14px 16px;
+    border-bottom:1px solid var(--tm-border);
+}
+
+.tm-account-head strong {
+    font-size:14px;
+    color:var(--tm-text);
+}
+
+.tm-account-head span {
+    font-size:12px;
+    color:var(--tm-muted);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.tm-account-panel nav {
+    display:grid;
+    padding:6px 0;
+}
+
+.tm-account-panel nav a {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    min-height:40px;
+    padding:0 16px;
+    font-size:14px;
+    color:rgb(var(--tm-neutral-200));
+}
+
+.tm-account-panel nav a:hover {
+    background:rgb(var(--tm-neutral-850));
+    color:var(--tm-accent);
+}
+
+.tm-account-panel nav a[aria-current="page"] {
+    color:var(--tm-accent);
+    box-shadow:inset 2px 0 var(--tm-accent);
+}
+
+.tm-account-group {
+    margin-top:6px;
+    padding:8px 16px 4px;
+    border-top:1px solid var(--tm-border);
+    font-size:12px;
+    font-weight:700;
+    color:var(--tm-muted);
+}
+
+.tm-account-foot {
+    border-top:1px solid var(--tm-border);
+}
+
+.tm-account-foot .tm-logout {
+    width:100%;
+    min-height:44px;
+    padding:0 16px;
+    text-align:left;
 }
 
 .tm-login {
@@ -265,10 +415,6 @@
 
 .tm-sell-link {
     color:var(--tm-accent);
-}
-
-.tm-mobile-cart {
-    display:none;
 }
 
 /* ---------- Home ---------- */
@@ -679,9 +825,6 @@
     .tm-topbar {
         gap:20px;
     }
-    .tm-account {
-        gap:12px;
-    }
     .tm-nav-links {
         gap:18px;
     }
@@ -691,14 +834,6 @@
 }
 
 @media(max-width:767px) {
-    .tm-mobile-cart {
-        display:flex;
-        align-items:center;
-        gap:8px;
-        min-height:44px;
-        margin-left:auto;
-        font-size:13px;
-    }
     .tm-container {
         padding:0 16px;
     }
@@ -713,18 +848,27 @@
         flex-basis:100%;
         max-width:none;
     }
-    .tm-account .tm-cart {
+    .tm-guest-cart,.tm-account-name {
         display:none;
     }
+    .tm-account-menu {
+        margin-left:0;
+        padding-left:4px;
+    }
+    /* Uma linha só, com rolagem lateral, em vez de quebrar em três. */
     .tm-nav-inner {
-        flex-wrap:wrap;
-        gap:0;
-        padding-top:4px;
-        padding-bottom:4px;
+        gap:16px;
+        overflow-x:auto;
+        scrollbar-width:none;
+    }
+    .tm-nav-inner::-webkit-scrollbar {
+        display:none;
     }
     .tm-nav-links {
-        flex-wrap:wrap;
         gap:0 16px;
+    }
+    .tm-sell-link {
+        flex-shrink:0;
     }
     .tm-home main {
         padding-top:16px;
@@ -1235,11 +1379,7 @@
 .tm-page-heading p { max-width:680px; color:var(--tm-muted); font-size:14px; line-height:1.6; }
 .text-center .tm-page-heading .tm-eyebrow { justify-content:center; }
 .text-center .tm-page-heading p { margin-inline:auto; }
-.tm-workspace-nav { border-bottom:1px solid var(--tm-border); background:var(--tm-bg); }
-.tm-workspace-links { display:flex; flex-wrap:wrap; gap:0 24px; padding-block:2px; scrollbar-width:thin; scrollbar-color:var(--tm-border) transparent; }
-.tm-workspace-links a { display:inline-flex; align-items:center; gap:8px; min-height:44px; color:var(--tm-muted); font-size:13px; font-weight:600; }
-.tm-workspace-links a:hover, .tm-header [aria-current="page"] { color:var(--tm-accent); }
-.tm-header [aria-current="page"] { box-shadow:inset 0 -2px var(--tm-accent); }
+.tm-subnav [aria-current="page"] { color:var(--tm-accent); box-shadow:inset 0 -2px var(--tm-accent); }
 .tm-empty-state { text-align:center; padding:48px 24px; background:var(--tm-panel); }
 .tm-empty-state h2 { margin:16px 0 8px; color:var(--tm-text); font-size:20px; font-weight:800; letter-spacing:-.4px; }
 .tm-empty-state p { max-width:440px; margin-inline:auto; font-size:14px; }
@@ -1259,16 +1399,19 @@
     .tm-main { padding:24px 16px; }
     .tm-topbar { column-gap:12px; }
     .tm-topbar .tm-logo { font-size:20px; }
-    .tm-account { gap:10px; }
-    .tm-workspace-links { gap:0 18px; flex-wrap:nowrap; overflow-x:auto; }
-    .tm-workspace-links a { flex-shrink:0; }
-}
+    }
 @media (max-width:400px) {
     .tm-topbar .tm-logo { font-size:18px; gap:6px; }
     .tm-logomark { width:28px; height:28px; }
-    .tm-account { gap:8px; }
     .tm-account .tm-button-small { padding:8px 10px; }
-    .tm-account .tm-login .tm-icon { display:none; }
+}
+/* Celular estreito (320px): logo e ícones precisam caber numa linha só. */
+@media (max-width:360px) {
+    .tm-account { gap:2px; }
+    .tm-icon-link { width:40px; }
+    .tm-account-menu { padding-left:2px; border-left:0; }
+    .tm-account-trigger { padding:0; }
+    .tm-account-chevron { display:none; }
 }
 @media (prefers-reduced-motion:reduce) {
     .tm-home *, .tm-header *, .tm-main * { transition:none !important; animation:none !important; scroll-behavior:auto !important; }

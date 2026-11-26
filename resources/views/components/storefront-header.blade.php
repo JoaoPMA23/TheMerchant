@@ -10,11 +10,56 @@
         </form>
         @endunless
         <div class="tm-account">
-            <a class="tm-cart" href="{{ route('cart.index') }}" aria-label="Meu carrinho"><x-icon name="cart" /></a>
             @auth
-                <a href="{{ route('profile.edit') }}" class="tm-login"><x-icon name="user" /><span>Minha conta</span></a>
-                <form method="POST" action="{{ route('logout') }}">@csrf<button class="tm-login tm-logout" type="submit">Sair</button></form>
+                {{-- $unreadChatCount vem do App\View\Composers\UnreadChatCountComposer. --}}
+                <a class="tm-icon-link" href="{{ route('chat.index') }}" aria-label="Mensagens{{ $unreadChatCount > 0 ? ', '.$unreadChatCount.' não lidas' : '' }}">
+                    <x-icon name="message" />
+                    @if ($unreadChatCount > 0)
+                        <span class="tm-count" aria-hidden="true">{{ $unreadChatCount > 99 ? '99+' : $unreadChatCount }}</span>
+                    @endif
+                </a>
+                <a class="tm-icon-link" href="{{ route('cart.index') }}" aria-label="Meu carrinho"><x-icon name="cart" /></a>
+
+                @php($user = auth()->user())
+                <div class="tm-account-menu" x-data="{ open: false }" @keydown.escape.window="if (open) { open = false; $refs.trigger.focus() }" @click.outside="open = false">
+                    <button type="button" x-ref="trigger" class="tm-account-trigger" @click="open = !open" :aria-expanded="open.toString()" aria-expanded="false" aria-controls="account-menu">
+                        <span class="tm-avatar" aria-hidden="true">{{ mb_strtoupper(mb_substr($user->name, 0, 1)) }}</span>
+                        <span class="tm-account-name">{{ \Illuminate\Support\Str::of($user->name)->before(' ') }}</span>
+                        <span class="sr-only">Abrir menu da conta</span>
+                        <x-icon name="chevron" class="tm-account-chevron" />
+                    </button>
+                    <div id="account-menu" class="tm-account-panel" x-cloak x-show="open" x-transition.opacity.duration.150ms>
+                        <div class="tm-account-head">
+                            <strong>{{ $user->name }}</strong>
+                            <span>{{ $user->email }}</span>
+                        </div>
+                        <nav aria-label="Minha conta">
+                            <a href="{{ route('orders.index') }}" @if(request()->routeIs('orders.*')) aria-current="page" @endif>Meus pedidos</a>
+                            <a href="{{ route('chat.index') }}" @if(request()->routeIs('chat.*')) aria-current="page" @endif>
+                                Mensagens
+                                @if ($unreadChatCount > 0)
+                                    <span class="tm-mini-label" aria-label="{{ $unreadChatCount }} mensagens não lidas">{{ $unreadChatCount > 99 ? '99+' : $unreadChatCount }}</span>
+                                @endif
+                            </a>
+                            <a href="{{ route('profile.edit') }}" @if(request()->routeIs('profile.*')) aria-current="page" @endif>Meu perfil</a>
+                            @if($user->isSeller())
+                                <p class="tm-account-group">Vendas</p>
+                                <a href="{{ route('seller.anuncios.index') }}" @if(request()->routeIs('seller.anuncios.*')) aria-current="page" @endif>Meus anúncios</a>
+                                <a href="{{ route('seller.sales.index') }}" @if(request()->routeIs('seller.sales.*')) aria-current="page" @endif>Minhas vendas</a>
+                            @endif
+                            @can('viewAny', \App\Models\User::class)
+                                <p class="tm-account-group">Administração</p>
+                                <a href="{{ route('admin.dashboard') }}" @if(request()->routeIs('admin.dashboard')) aria-current="page" @endif>Painel</a>
+                                <a href="{{ route('admin.usuarios.index') }}" @if(request()->routeIs('admin.usuarios.*')) aria-current="page" @endif>Contas</a>
+                                <a href="{{ route('admin.categorias.index') }}" @if(request()->routeIs('admin.categorias.*')) aria-current="page" @endif>Categorias e jogos</a>
+                                <a href="{{ route('admin.reports.index') }}" @if(request()->routeIs('admin.reports.*')) aria-current="page" @endif>Denúncias</a>
+                            @endcan
+                        </nav>
+                        <form method="POST" action="{{ route('logout') }}" class="tm-account-foot">@csrf<button class="tm-logout" type="submit">Sair</button></form>
+                    </div>
+                </div>
             @else
+                <a class="tm-icon-link tm-guest-cart" href="{{ route('cart.index') }}" aria-label="Meu carrinho"><x-icon name="cart" /></a>
                 <a href="{{ route('login') }}" class="tm-login">Entrar</a><a href="{{ route('register') }}" class="tm-button tm-button-small">Criar conta</a>
             @endauth
         </div>
@@ -26,32 +71,10 @@
             <a href="{{ route('listings.index', ['tipo' => 'service']) }}" @if(request()->routeIs('listings.index') && request('tipo') === 'service') aria-current="page" @endif>Coaching</a>
             <a href="{{ route('home') }}#como-funciona">Como funciona</a>
         </div>
-        <a class="tm-sell-link" href="{{ route('seller.application') }}"><x-icon name="store" />Quero vender</a>
-        <a class="tm-mobile-cart" href="{{ route('cart.index') }}"><x-icon name="cart" />Meu carrinho</a>
+        @if(auth()->user()?->isSeller())
+            <a class="tm-sell-link" href="{{ route('seller.anuncios.create') }}"><x-icon name="plus" />Anunciar item</a>
+        @else
+            <a class="tm-sell-link" href="{{ route('seller.application') }}"><x-icon name="store" />Quero vender</a>
+        @endif
     </div></nav>
-    @auth
-        {{-- $unreadChatCount vem do App\View\Composers\UnreadChatCountComposer. --}}
-        <nav class="tm-workspace-nav" aria-label="Minha área">
-            <div class="tm-container tm-workspace-links">
-                <a href="{{ route('orders.index') }}" @if(request()->routeIs('orders.*')) aria-current="page" @endif>Meus pedidos</a>
-                <a href="{{ route('chat.index') }}" @if(request()->routeIs('chat.*')) aria-current="page" @endif>
-                    Mensagens
-                    @if ($unreadChatCount > 0)
-                        <span class="tm-mini-label" aria-label="{{ $unreadChatCount }} mensagens não lidas">{{ $unreadChatCount > 99 ? '99+' : $unreadChatCount }}</span>
-                    @endif
-                </a>
-                <a href="{{ route('profile.edit') }}" @if(request()->routeIs('profile.*')) aria-current="page" @endif>Meu perfil</a>
-                @if(auth()->user()->isSeller())
-                    <a href="{{ route('seller.anuncios.index') }}" @if(request()->routeIs('seller.anuncios.*')) aria-current="page" @endif>Meus anúncios</a>
-                    <a href="{{ route('seller.sales.index') }}" @if(request()->routeIs('seller.sales.*')) aria-current="page" @endif>Minhas vendas</a>
-                @endif
-                @can('viewAny', \App\Models\User::class)
-                    <a href="{{ route('admin.dashboard') }}" @if(request()->routeIs('admin.dashboard')) aria-current="page" @endif>Administração</a>
-                    <a href="{{ route('admin.usuarios.index') }}" @if(request()->routeIs('admin.usuarios.*')) aria-current="page" @endif>Contas</a>
-                    <a href="{{ route('admin.categorias.index') }}" @if(request()->routeIs('admin.categorias.*')) aria-current="page" @endif>Categorias e jogos</a>
-                    <a href="{{ route('admin.reports.index') }}" @if(request()->routeIs('admin.reports.*')) aria-current="page" @endif>Denúncias</a>
-                @endcan
-            </div>
-        </nav>
-    @endauth
 </header>
