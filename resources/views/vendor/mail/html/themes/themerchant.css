@@ -1,0 +1,331 @@
+/*
+ * Tema dos e-mails do TheMerchant: mesmas cores do public/css/theme.css (fundo neutral-950,
+ * painel neutral-900, borda neutral-800, verde brand-600 só na ação).
+ * O Laravel converte estas regras em estilos inline; clientes de e-mail ignoram variáveis CSS,
+ * por isso as cores estão escritas em hexadecimal.
+ */
+
+body,
+body *:not(html):not(style):not(br):not(tr):not(code) {
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    position: relative;
+}
+
+body {
+    -webkit-text-size-adjust: none;
+    background-color: #0c0e12;
+    color: #f4f5f7;
+    height: 100%;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+}
+
+p,
+ul,
+ol,
+blockquote {
+    line-height: 1.6;
+    text-align: left;
+}
+
+a {
+    color: #bbf35b;
+}
+
+a img {
+    border: none;
+}
+
+/* Tipografia */
+
+h1 {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.4px;
+    margin-top: 0;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+h2 {
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 700;
+    margin-top: 0;
+    text-align: left;
+}
+
+h3 {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 0;
+    text-align: left;
+}
+
+p {
+    color: #c3c7cf;
+    font-size: 15px;
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+p.sub {
+    font-size: 12px;
+}
+
+img {
+    max-width: 100%;
+}
+
+strong {
+    color: #ffffff;
+}
+
+/* Estrutura */
+
+.wrapper {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #0c0e12;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.content {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* Cabeçalho com a marca */
+
+.header {
+    padding: 32px 0 24px;
+    text-align: center;
+}
+
+.header a {
+    color: #f4f5f7;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.logo-mark {
+    border-radius: 6px;
+    display: inline-block;
+    height: 32px;
+    vertical-align: middle;
+    width: 32px;
+}
+
+.logo-word {
+    color: #f4f5f7;
+    display: inline-block;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    padding-left: 8px;
+    vertical-align: middle;
+}
+
+.logo-accent {
+    color: #bbf35b;
+}
+
+/* Painel do conteúdo */
+
+.body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #0c0e12;
+    border: hidden !important;
+    margin: 0;
+    padding: 0 16px;
+    width: 100%;
+}
+
+.inner-body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    background-color: #14171d;
+    border: 1px solid #292e36;
+    border-radius: 8px;
+    margin: 0 auto;
+    padding: 0;
+    width: 570px;
+}
+
+.inner-body a {
+    word-break: break-all;
+}
+
+.content-cell {
+    max-width: 100vw;
+    padding: 32px;
+}
+
+/* Linha fina verde no topo do painel, como o destaque ativo do site. */
+.accent-bar {
+    background-color: #bbf35b;
+    border-radius: 8px 8px 0 0;
+    font-size: 0;
+    height: 3px;
+    line-height: 3px;
+}
+
+/* Subcopy (link alternativo ao botão) */
+
+.subcopy {
+    border-top: 1px solid #292e36;
+    margin-top: 24px;
+    padding-top: 20px;
+}
+
+.subcopy p {
+    color: #8e95a1;
+    font-size: 13px;
+}
+
+.subcopy a {
+    color: #bbf35b;
+}
+
+/* Rodapé */
+
+.footer {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    margin: 0 auto;
+    padding: 0;
+    text-align: center;
+    width: 570px;
+}
+
+.footer p {
+    color: #8e95a1;
+    font-size: 12px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.footer a {
+    color: #a5aab5;
+    text-decoration: underline;
+}
+
+/* Tabelas (usadas em e-mails de pedido) */
+
+.table table {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 24px auto;
+    width: 100%;
+}
+
+.table th {
+    border-bottom: 1px solid #292e36;
+    color: #a5aab5;
+    font-size: 13px;
+    margin: 0;
+    padding-bottom: 8px;
+}
+
+.table td {
+    color: #c3c7cf;
+    font-size: 15px;
+    line-height: 18px;
+    margin: 0;
+    padding: 10px 0;
+}
+
+/* Botões */
+
+.action {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 28px auto;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+    float: unset;
+}
+
+.button {
+    -webkit-text-size-adjust: none;
+    border-radius: 6px;
+    color: #182211;
+    display: inline-block;
+    font-size: 15px;
+    font-weight: 700;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.button-blue,
+.button-primary,
+.button-green,
+.button-success {
+    background-color: #bbf35b;
+    border-bottom: 12px solid #bbf35b;
+    border-left: 24px solid #bbf35b;
+    border-right: 24px solid #bbf35b;
+    border-top: 12px solid #bbf35b;
+    color: #182211;
+}
+
+.button-red,
+.button-error {
+    background-color: #f87171;
+    border-bottom: 12px solid #f87171;
+    border-left: 24px solid #f87171;
+    border-right: 24px solid #f87171;
+    border-top: 12px solid #f87171;
+    color: #1f0a0a;
+}
+
+/* Painéis de destaque */
+
+.panel {
+    border-left: #bbf35b solid 3px;
+    margin: 21px 0;
+}
+
+.panel-content {
+    background-color: #1b1e25;
+    color: #c3c7cf;
+    padding: 16px;
+}
+
+.panel-content p {
+    color: #c3c7cf;
+}
+
+.panel-item {
+    padding: 0;
+}
+
+.panel-item p:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* Utilitários */
+
+.break-all {
+    word-break: break-all;
+}

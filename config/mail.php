@@ -38,7 +38,8 @@ return [
     ],
 
     'markdown' => [
-        'theme' => env('MAIL_MARKDOWN_THEME', 'default'),
+        // Tema próprio em resources/views/vendor/mail/html/themes/themerchant.css (cores do site).
+        'theme' => env('MAIL_MARKDOWN_THEME', 'themerchant'),
         'paths' => [resource_path('views/vendor/mail')],
     ],
 ];
