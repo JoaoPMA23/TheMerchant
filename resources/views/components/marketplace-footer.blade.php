@@ -1,17 +1,5 @@
 <footer class="market-footer" aria-label="Rodapé do marketplace">
     <div class="market-footer-inner">
-        {{-- O convite para o catálogo é de venda; nas telas do admin ele não faz sentido. --}}
-        @unless(request()->routeIs('admin.*'))
-        <div class="market-footer-banner">
-            <div>
-                <span class="market-footer-eyebrow">Procurando algo específico?</span>
-                <h2>Veja o catálogo completo</h2>
-                <p>Filtre por jogo, tipo de anúncio, preço e nota do vendedor.</p>
-            </div>
-            <a class="market-footer-cta" href="{{ route('listings.index') }}">Ver catálogo <x-icon /></a>
-        </div>
-        @endunless
-
         <div class="market-footer-grid">
             <div class="market-footer-brand">
                 <a href="{{ route('home') }}" class="market-footer-logo" aria-label="TheMerchant, página inicial">
@@ -19,7 +7,7 @@
                     <span>the<span class="market-footer-accent">merchant.</span></span>
                 </a>
                 <p>Compre e venda skins, personalize seu inventário e encontre coaching para evoluir nas partidas.</p>
-                <span class="market-footer-signature"><x-icon name="game" /> Projeto da Fatec Praia Grande</span>
+                <span class="market-footer-signature">Projeto acadêmico da Fatec Praia Grande</span>
             </div>
 
             <nav aria-label="Explorar o marketplace">

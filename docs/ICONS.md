@@ -6,7 +6,7 @@ incluídos; não há dependência de JavaScript, CDN ou requisições externas e
 
 ```blade
 <x-icon name="cart" />
-<x-icon name="game" class="tm-promo-icon" />
+<x-icon name="game" class="tm-product-symbol" />
 <x-icon /> {{-- arrow-right por padrão --}}
 ```
 
